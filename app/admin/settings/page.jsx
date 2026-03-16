@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { BsSave, BsImage, BsPalette, BsGlobe, BsTelephoneFill, BsCloudUpload, BsXCircleFill, BsTrash } from "react-icons/bs";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
+import { useToast } from "@/components/Toast";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -12,6 +14,7 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saveMessage, setSaveMessage] = useState("");
+  const toast = useToast();
 
   // Settings state broken into sections
   const [general, setGeneral] = useState({
@@ -78,11 +81,10 @@ export default function SettingsPage() {
     setIsSaving(false);
 
     if (error) {
-      setSaveMessage(`Error: ${error.message}`);
+      toast.error(`Error saving settings: ${error.message}`);
     } else {
-      setSaveMessage("Settings saved successfully!");
+      toast.success("Settings saved successfully!");
       router.refresh();
-      setTimeout(() => setSaveMessage(""), 3000);
     }
   };
 
@@ -163,8 +165,8 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto py-20 text-center text-gray-400">
-        Loading settings...
+      <div className="max-w-5xl mx-auto">
+        <LogoLoader />
       </div>
     );
   }

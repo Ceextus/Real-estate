@@ -6,12 +6,15 @@ import { BsPlusLg, BsSearch, BsThreeDotsVertical, BsPencilSquare, BsTrash, BsClo
 import Image from "next/image";
 import AdminModal from "@/components/admin/AdminModal";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
+import { useToast } from "@/components/Toast";
 
 export default function AdminProperties() {
   const router = useRouter();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const toast = useToast();
   
   // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -56,12 +59,19 @@ export default function AdminProperties() {
 
   const handleDelete = async () => {
     if (!selectedProperty) return;
-    const supabase = createClient();
-    await supabase.from("properties").delete().eq("id", selectedProperty.id);
-    setIsDeleteModalOpen(false);
-    setSelectedProperty(null);
-    fetchProperties();
-    router.refresh();
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("properties").delete().eq("id", selectedProperty.id);
+      if (error) throw error;
+      
+      toast.success("Property deleted successfully!");
+      setIsDeleteModalOpen(false);
+      setSelectedProperty(null);
+      fetchProperties();
+      router.refresh();
+    } catch (err) {
+      toast.error(`Failed to delete property: ${err.message}`);
+    }
   };
 
   const handleFormSuccess = () => {
@@ -113,7 +123,7 @@ export default function AdminProperties() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="py-16 text-center text-gray-400">Loading properties...</div>
+            <LogoLoader />
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
@@ -237,6 +247,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(property?.image || null);
+  const toast = useToast();
 
   const [form, setForm] = useState({
     title: property?.title || "",
@@ -441,8 +452,10 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
     if (result.error) {
       setError(result.error.message);
+      toast.error(`Operation failed: ${result.error.message}`);
       setSaving(false);
     } else {
+      toast.success(isEditing ? "Property updated successfully!" : "Property created successfully!");
       onSuccess();
     }
   };

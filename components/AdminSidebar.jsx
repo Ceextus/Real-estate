@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { 
   HiOutlineHome, 
@@ -39,17 +40,20 @@ export default function AdminSidebar({ onMobileClick }) {
   return (
     <aside className="w-64 bg-primary text-white flex flex-col min-h-screen border-r border-white/10 shadow-xl z-50">
       {/* Sidebar Header / Logo */}
-      <div className="h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
-        <Link href="/admin" className="flex items-center gap-3" onClick={onMobileClick}>
-          <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center shadow-lg">
-            <GoHomeFill className="text-white text-sm" />
+      <div className=" bg-white h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
+        <Link href="/admin" className="flex items-center" onClick={onMobileClick}>
+          <div className="relative h-22 w-48 -ml-2 ">
+            <Image 
+              src="/logo.png" 
+              alt="Andream Homes Logo" 
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
-          <span className="font-bold text-lg tracking-wide whitespace-nowrap">
-            Andream Admin
-          </span>
         </Link>
         {/* Mobile Close Button (only visible on mobile via parent styling usually, but we can manage here too) */}
-        <button onClick={onMobileClick} className="lg:hidden text-white/50 hover:text-white p-2 text-2xl">
+        <button onClick={onMobileClick} className="lg:hidden text-primary hover:text-primary/35 p-2 text-2xl">
           &times;
         </button>
       </div>

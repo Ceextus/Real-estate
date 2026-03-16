@@ -6,11 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 
 export default function Projects() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch projects from Supabase
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function Projects() {
         .select("*")
         .order("created_at", { ascending: false });
       if (data) setProjects(data);
+      setLoading(false);
     }
     fetchProjects();
   }, []);
@@ -44,6 +47,7 @@ export default function Projects() {
     setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
   };
 
+  if (loading) return <LogoLoader />;
   if (projects.length === 0) return null;
 
   return (

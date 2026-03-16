@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { BsSearch, BsCalendarEvent, BsCheckCircleFill, BsXCircleFill, BsTelephoneFill, BsTrash } from "react-icons/bs";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
+import { useToast } from "@/components/Toast";
 
 export default function AdminInspections() {
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const toast = useToast();
 
   const fetchInspections = async () => {
     const supabase = createClient();
@@ -25,15 +28,29 @@ export default function AdminInspections() {
   }, []);
 
   const updateStatus = async (id, newStatus) => {
-    const supabase = createClient();
-    await supabase.from("inspections").update({ status: newStatus }).eq("id", id);
-    fetchInspections();
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("inspections").update({ status: newStatus }).eq("id", id);
+      if (error) throw error;
+      
+      toast.success(`Inspection marked as ${newStatus}`);
+      fetchInspections();
+    } catch (err) {
+      toast.error(`Failed to update status: ${err.message}`);
+    }
   };
 
   const deleteInspection = async (id) => {
-    const supabase = createClient();
-    await supabase.from("inspections").delete().eq("id", id);
-    fetchInspections();
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("inspections").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast.success("Inspection deleted successfully!");
+      fetchInspections();
+    } catch (err) {
+      toast.error(`Failed to delete inspection: ${err.message}`);
+    }
   };
 
   const filteredInspections = inspections.filter((insp) => {
@@ -59,10 +76,10 @@ export default function AdminInspections() {
       
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex flex-wrap items-center gap-3">
           Inspection Bookings
           {pendingCount > 0 && (
-            <span className="ml-3 text-sm bg-amber-500 text-white px-2.5 py-1 rounded-full align-middle">
+            <span className="text-sm bg-amber-500 text-white px-2.5 py-1 rounded-full align-middle whitespace-nowrap">
               {pendingCount} pending
             </span>
           )}
@@ -71,8 +88,8 @@ export default function AdminInspections() {
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full sm:w-96">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+        <div className="relative w-full lg:w-96">
           <BsSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
@@ -82,12 +99,12 @@ export default function AdminInspections() {
             className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
           {["all", "pending", "confirmed", "completed", "cancelled"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex-1 sm:flex-none text-center ${
                 activeTab === tab
                   ? "bg-gray-900 text-white shadow-sm"
                   : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
@@ -101,7 +118,7 @@ export default function AdminInspections() {
 
       {/* Inspections List */}
       {loading ? (
-        <div className="py-16 text-center text-gray-400">Loading inspections...</div>
+        <LogoLoader />
       ) : filteredInspections.length === 0 ? (
         <div className="py-12 text-center bg-white rounded-2xl border border-gray-100">
           <BsCalendarEvent className="text-4xl text-gray-300 mx-auto mb-3" />
@@ -143,7 +160,7 @@ export default function AdminInspections() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
                   {insp.status === "pending" && (
                     <button
                       onClick={() => updateStatus(insp.id, "confirmed")}

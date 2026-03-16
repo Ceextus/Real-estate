@@ -75,13 +75,18 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
           {/* Top Left Logo Area */}
-          <div className="absolute top-10 left-10 flex items-center gap-3 z-10 lg:left-16 lg:top-20">
-            <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-lg">
-              <GoHomeFill className="text-white text-xl" />
-            </div>
-            <span className="text-white font-bold text-lg tracking-wide drop-shadow-md">
-              Andream Homes
-            </span>
+          <div className="absolute top-10 left-10 z-10 lg:left-16 lg:top-20">
+            <Link href="/">
+              <div className="relative h-16 w-56 lg:h-20 lg:w-64">
+                <Image 
+                  src="/logo.png" 
+                  alt="Andream Homes Logo" 
+                  fill
+                  className="object-contain object-left drop-shadow-md brightness-0 invert" // Keeping it white if background is dark, remove classes if original is fine
+                  priority
+                />
+              </div>
+            </Link>
           </div>
 
           {/* Bottom Left Text Area */}

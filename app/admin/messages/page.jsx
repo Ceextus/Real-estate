@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BsSearch, BsEnvelopeFill, BsCheckCircleFill, BsArchiveFill, BsTrash } from "react-icons/bs";
+import { BsSearch, BsEnvelopeFill, BsCheckCircleFill, BsArchiveFill, BsTrash, BsArrowLeft } from "react-icons/bs";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
+import { useToast } from "@/components/Toast";
 
 export default function AdminMessages() {
   const [messages, setMessages] = useState([]);
@@ -10,6 +12,7 @@ export default function AdminMessages() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const toast = useToast();
 
   useEffect(() => {
     const load = async () => {
@@ -34,16 +37,29 @@ export default function AdminMessages() {
   };
 
   const updateStatus = async (id, newStatus) => {
-    const supabase = createClient();
-    await supabase.from("messages").update({ status: newStatus }).eq("id", id);
-    fetchMessages();
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("messages").update({ status: newStatus }).eq("id", id);
+      if (error) throw error;
+      if (newStatus === "archived") toast.success("Message archived");
+      fetchMessages();
+    } catch (err) {
+      toast.error(`Failed to update status: ${err.message}`);
+    }
   };
 
   const deleteMessage = async (id) => {
-    const supabase = createClient();
-    await supabase.from("messages").delete().eq("id", id);
-    if (selectedMessage === id) setSelectedMessage(null);
-    fetchMessages();
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("messages").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast.success("Message deleted successfully!");
+      if (selectedMessage === id) setSelectedMessage(null);
+      fetchMessages();
+    } catch (err) {
+      toast.error(`Failed to delete message: ${err.message}`);
+    }
   };
 
   const handleSelectMessage = async (msg) => {
@@ -68,7 +84,7 @@ export default function AdminMessages() {
     <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-120px)] animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       
       {/* Left Column: Inbox List */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-6">
+      <div className={`w-full lg:w-1/3 flex-col gap-6 ${selectedMessage ? "hidden lg:flex" : "flex"}`}>
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Messages
@@ -113,7 +129,7 @@ export default function AdminMessages() {
         {/* Message List */}
         <div className="flex-1 overflow-y-auto space-y-3 hide-scrollbar pb-10">
           {loading ? (
-            <div className="py-12 text-center text-gray-400">Loading messages...</div>
+            <LogoLoader />
           ) : (
             filteredMessages.map((msg) => (
               <button
@@ -157,14 +173,24 @@ export default function AdminMessages() {
       </div>
 
       {/* Right Column: Message Detail View */}
-      <div className="flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-[700px] lg:h-auto">
+      <div className={`flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex-col h-[700px] lg:h-auto ${selectedMessage ? "flex" : "hidden lg:flex"}`}>
         {currentMsg ? (
           <>
             {/* Detail Header */}
             <div className="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50">
-              <div className="flex justify-between items-start mb-6">
+              
+              {/* Mobile Back Button */}
+              <button 
+                onClick={() => setSelectedMessage(null)}
+                className="lg:hidden mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-900 font-medium text-sm transition-colors"
+              >
+                <BsArrowLeft className="text-lg" />
+                Back to Inbox
+              </button>
+
+              <div className="flex justify-between items-start mb-6 gap-4">
                 <h2 className="text-2xl font-bold text-gray-900 leading-tight pr-8">{currentMsg.subject || "No subject"}</h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0 flex-wrap justify-end">
                   {currentMsg.status !== "archived" && (
                     <button 
                       onClick={() => updateStatus(currentMsg.id, "archived")}

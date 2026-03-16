@@ -6,12 +6,15 @@ import { BsPlusLg, BsSearch, BsPencilSquare, BsTrash, BsCloudUpload, BsXCircleFi
 import Image from "next/image";
 import AdminModal from "@/components/admin/AdminModal";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
+import { useToast } from "@/components/Toast";
 
 export default function AdminTeam() {
   const router = useRouter();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const toast = useToast();
   
   // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -53,12 +56,19 @@ export default function AdminTeam() {
 
   const handleDelete = async () => {
     if (!selectedMember) return;
-    const supabase = createClient();
-    await supabase.from("team_members").delete().eq("id", selectedMember.id);
-    setIsDeleteModalOpen(false);
-    setSelectedMember(null);
-    fetchMembers();
-    router.refresh();
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("team_members").delete().eq("id", selectedMember.id);
+      if (error) throw error;
+      
+      toast.success("Team member deleted successfully!");
+      setIsDeleteModalOpen(false);
+      setSelectedMember(null);
+      fetchMembers();
+      router.refresh();
+    } catch (err) {
+      toast.error(`Failed to delete team member: ${err.message}`);
+    }
   };
 
   const handleFormSuccess = () => {
@@ -108,7 +118,7 @@ export default function AdminTeam() {
 
       {/* Team Grid */}
       {loading ? (
-        <div className="py-16 text-center text-gray-400">Loading team members...</div>
+        <LogoLoader />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMembers.map((member) => (
@@ -219,6 +229,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(member?.image || null);
+  const toast = useToast();
 
   const [form, setForm] = useState({
     name: member?.name || "",
@@ -306,8 +317,10 @@ function TeamForm({ member = null, onSuccess, onClose }) {
 
     if (result.error) {
       setError(result.error.message);
+      toast.error(`Operation failed: ${result.error.message}`);
       setSaving(false);
     } else {
+      toast.success(isEditing ? "Team member updated successfully!" : "Team member created successfully!");
       onSuccess();
     }
   };

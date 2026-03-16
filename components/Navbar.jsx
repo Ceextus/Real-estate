@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HiMenu, HiX } from "react-icons/hi";
@@ -62,21 +63,22 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 group relative z-50"
+              className="flex items-center group relative z-50"
             >
               <motion.div
-                whileHover={{ rotate: 15, scale: 1.15 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="relative w-32 h-10 sm:w-40 sm:h-12"
               >
-                <BsHouseDoor
-                  className={`text-accent text-3xl transition-colors duration-300 ${scrolled ? "group-hover:text-primary" : "group-hover:text-white"}`}
+                <Image
+                  src="/logo.png"
+                  alt="Andream Homes Logo"
+                  fill
+                  className="object-contain"
+                  priority
                 />
               </motion.div>
-              <span
-                className={`font-bold tracking-widest text-lg ml-1 transition-colors duration-300 hidden sm:block ${scrolled ? "text-primary group-hover:text-accent" : "text-white group-hover:text-accent"}`}
-              >
-                ANDREAM HOMES
-              </span>
             </Link>
 
             {/* Desktop Navigation - Subtle Pill */}
@@ -168,7 +170,7 @@ export default function Navbar() {
                       <HiX className="h-5 w-5" />
                     ) : (
                       <HiMenu className="h-5 w-5" />
-                    )}
+                                                                          )}
                   </motion.div>
                 </AnimatePresence>
               </motion.button>

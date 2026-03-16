@@ -9,6 +9,7 @@ import {
 } from "react-icons/bs";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -109,97 +110,154 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
-        <p className="text-gray-500">Welcome to the Andream Homes administration portal.</p>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            Live System Status
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Dashboard Overview</h1>
+          <p className="text-gray-500 mt-2 font-medium">Welcome back to the Andream Homes administration portal.</p>
+        </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
+        <div className="min-h-[400px] flex items-center justify-center">
+          <LogoLoader />
         </div>
       ) : (
         <>
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {statCards.map((stat) => (
-              <div key={stat.name} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col pt-8 relative overflow-hidden group hover:shadow-md transition-shadow">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {statCards.map((stat, i) => (
+              <div 
+                key={stat.name} 
+                className="bg-white rounded-[2rem] p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/80 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                {/* Decorative Background Blob */}
+                <div className={`absolute -right-6 -top-6 w-32 h-32 ${stat.color} opacity-[0.03] rounded-full blur-2xl group-hover:opacity-[0.08] transition-opacity duration-500`} />
+                <div className={`absolute top-0 right-0 w-24 h-24 ${stat.color} opacity-[0.02] rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-125`} />
                 
-                <div className={`absolute top-0 right-0 w-24 h-24 ${stat.color} opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110`} />
-                
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`w-12 h-12 rounded-xl text-white ${stat.color} flex items-center justify-center shadow-sm`}>
+                <div className="relative z-10 flex justify-between items-start mb-6">
+                  <div className={`w-14 h-14 rounded-2xl text-white ${stat.color} flex items-center justify-center shadow-lg shadow-${stat.color.split('-')[1]}-500/30 group-hover:scale-110 transition-transform duration-300`}>
                     <stat.icon className="text-2xl" />
                   </div>
                 </div>
                 
-                <div>
-                  <h3 className="text-gray-500 text-sm font-medium mb-1">{stat.name}</h3>
-                  <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                  <p className="text-xs text-gray-400 font-medium">{stat.trend}</p>
+                <div className="relative z-10">
+                  <p className="text-4xl font-extrabold text-gray-900 mb-1 tracking-tight">{stat.value}</p>
+                  <h3 className="text-gray-500 text-sm font-semibold mb-2">{stat.name}</h3>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 rounded-lg">
+                    <span className="text-xs text-gray-500 font-medium">{stat.trend}</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Recent Activity / Quick Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             
-            {/* Recent Activity */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+            {/* Recent Activity Feed */}
+            <div className="xl:col-span-2 bg-white rounded-[2rem] p-7 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/80">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
+                <Link href="/admin/messages" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                  View full history &rarr;
+                </Link>
+              </div>
+
               {recentActivity.length === 0 ? (
-                <p className="text-gray-500 py-4 text-sm">No recent activity found.</p>
+                <div className="py-12 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                    <BsEnvelopePaperHeart className="text-2xl text-gray-300" />
+                  </div>
+                  <p className="text-gray-500 font-medium">No recent activity found.</p>
+                  <p className="text-sm text-gray-400 mt-1">New messages and inspections will appear here.</p>
+                </div>
               ) : (
-                <div className="space-y-6">
-                  {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex gap-4">
-                      <div className={`w-2 h-2 mt-2 rounded-full ${activity.type === 'message' ? 'bg-accent' : 'bg-primary'}`} />
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">{activity.title}</p>
-                        <p className="text-xs text-gray-500 leading-relaxed mt-1">{activity.subtitle}</p>
-                        <p className="text-xs text-gray-400 mt-1">{formatTimeAgo(activity.date)}</p>
+                <div className="space-y-6 relative">
+                  {/* Vertical timeline line */}
+                  <div className="absolute left-[21px] top-6 bottom-4 w-px bg-gray-100 hidden sm:block" />
+
+                  {recentActivity.map((activity, index) => (
+                    <div key={activity.id} className="relative flex gap-5 sm:gap-6 group">
+                      
+                      {/* Timeline Icon */}
+                      <div className={`relative z-10 w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center shadow-sm shrink-0 transition-transform duration-300 group-hover:scale-110 ${
+                        activity.type === 'message' 
+                          ? 'bg-accent/10 text-accent border border-accent/20' 
+                          : 'bg-primary/10 text-primary border border-primary/20'
+                      }`}>
+                        {activity.type === 'message' ? <BsEnvelopePaperHeart className="text-lg" /> : <BsBuildings className="text-lg" />}
                       </div>
+
+                      {/* Content Card */}
+                      <div className="flex-1 bg-gray-50/50 group-hover:bg-white border border-transparent group-hover:border-gray-100 rounded-2xl p-4 sm:p-5 transition-all duration-300 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+                          <p className="text-base font-bold text-gray-900 group-hover:text-primary transition-colors">{activity.title}</p>
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white border border-gray-200 text-gray-500 whitespace-nowrap shadow-sm">
+                            {formatTimeAgo(activity.date)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 font-medium">{activity.subtitle}</p>
+                      </div>
+
                     </div>
                   ))}
                 </div>
               )}
-              <Link href="/admin/messages" className="block text-center w-full mt-6 py-3 text-sm font-medium text-primary hover:bg-gray-50 rounded-xl transition-colors">
-                View all activity
-              </Link>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <Link href="/admin/properties" className="p-4 border border-gray-100 rounded-xl hover:border-primary hover:shadow-sm flex flex-col items-center justify-center gap-2 group transition-all">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                    <BsBuildings />
+            {/* Quick Actions Panel */}
+            <div className="bg-white rounded-[2rem] p-7 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/80 h-max sticky top-28">
+              <h2 className="text-xl font-bold text-gray-900 mb-8">Quick Actions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
+                
+                <Link href="/admin/properties" className="group p-5 rounded-2xl border border-gray-100 hover:border-primary/30 bg-white hover:bg-primary/5 transition-all duration-300 flex items-center gap-4 hover:shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <BsBuildings className="text-xl" />
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Add Property</span>
-                </Link>
-                <Link href="/admin/gallery" className="p-4 border border-gray-100 rounded-xl hover:border-accent hover:shadow-sm flex flex-col items-center justify-center gap-2 group transition-all">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-colors">
-                    <BsImages />
+                  <div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors">Add Property</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">List a new home</p>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Upload Media</span>
                 </Link>
-                <Link href="/admin/team" className="p-4 border border-gray-100 rounded-xl hover:border-gray-800 hover:shadow-sm flex flex-col items-center justify-center gap-2 group transition-all">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 group-hover:bg-gray-800 group-hover:text-white transition-colors">
-                    <BsPeopleFill />
+
+                <Link href="/admin/gallery" className="group p-5 rounded-2xl border border-gray-100 hover:border-accent/30 bg-white hover:bg-accent/5 transition-all duration-300 flex items-center gap-4 hover:shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <BsImages className="text-xl" />
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Add Member</span>
-                </Link>
-                <Link href="/admin/inspections" className="p-4 border border-gray-100 rounded-xl hover:border-green-500 hover:shadow-sm flex flex-col items-center justify-center gap-2 group transition-all">
-                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors">
-                    <BsEnvelopePaperHeart />
+                  <div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-accent transition-colors">Upload Media</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Manage gallery images</p>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Inspections</span>
                 </Link>
+
+                <Link href="/admin/team" className="group p-5 rounded-2xl border border-gray-100 hover:border-gray-900/30 bg-white hover:bg-gray-50 transition-all duration-300 flex items-center gap-4 hover:shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 group-hover:bg-gray-800 group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <BsPeopleFill className="text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-gray-800 transition-colors">Manage Team</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Add or edit agents</p>
+                  </div>
+                </Link>
+
+                <Link href="/admin/inspections" className="group p-5 rounded-2xl border border-gray-100 hover:border-green-500/30 bg-white hover:bg-green-50/50 transition-all duration-300 flex items-center gap-4 hover:shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <BsEnvelopePaperHeart className="text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors">Inspections</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Review tour requests</p>
+                  </div>
+                </Link>
+
               </div>
             </div>
 

@@ -10,26 +10,7 @@ import {
 } from "react-icons/bs";
 import { createClient } from "@/utils/supabase/client";
 
-// Custom SVGs for a house logo similar to the image
-const LogoIcon = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="text-white"
-  >
-    <path
-      d="M2 13.5L12 4.5L22 13.5"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path d="M12 4.5L17 9V20H13V14H11V20H7V9L12 4.5Z" fill="currentColor" />
-  </svg>
-);
+import Image from "next/image";
 
 const socialIcons = {
   facebook: BsFacebook,
@@ -69,11 +50,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
         {/* Logo */}
         <div className="flex flex-col items-center gap-6 mb-8">
-          <div className="flex items-center justify-center gap-3">
-            <LogoIcon />
-            <div className="font-bold text-xl tracking-wider text-white">
-              ANDREAM HOMES
-            </div>
+          <div className="relative h-16 w-56 lg:h-20 lg:w-64 mb-2">
+            <Image 
+              src="/logo.png" 
+              alt="Andream Homes Logo" 
+              fill
+              className="object-contain"
+            />
           </div>
         </div>
 
@@ -107,40 +90,40 @@ export default function Footer() {
         <div className="w-full h-px bg-white/20 mb-8" />
 
         {/* Bottom Navigation Links */}
-        <div className="flex flex-wrap justify-center items-center divide-x divide-white/20 text-white/90 text-[0.95rem] font-medium tracking-wide">
+        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 sm:gap-x-8 md:gap-x-12 text-white/90 text-sm font-medium tracking-wide">
           <Link
             href="/"
-            className="px-6 md:px-12 hover:text-accent transition-colors"
+            className="hover:text-accent transition-colors"
           >
             HOME
           </Link>
           <Link
             href="/about"
-            className="px-6 md:px-12 hover:text-accent transition-colors"
+            className="hover:text-accent transition-colors"
           >
             ABOUT
           </Link>
           <Link
             href="/properties"
-            className="px-6 md:px-12 hover:text-accent transition-colors"
+            className="hover:text-accent transition-colors"
           >
             PROPERTIES
           </Link>
           <Link
             href="/gallery"
-            className="px-6 md:px-12 hover:text-accent transition-colors"
+            className="hover:text-accent transition-colors"
           >
             GALLERY
           </Link>
           <Link
             href="/contact"
-            className="px-6 md:px-12 hover:text-accent transition-colors"
+            className="hover:text-accent transition-colors"
           >
             CONTACT
           </Link>
           <Link
             href="/admin"
-            className="px-6 md:px-12 hover:text-accent transition-colors"
+            className="hover:text-accent transition-colors"
           >
             ADMIN
           </Link>

@@ -6,6 +6,8 @@ import { BsPlusLg, BsTrash, BsImage, BsCloudUpload, BsXCircleFill } from "react-
 import Image from "next/image";
 import AdminModal from "@/components/admin/AdminModal";
 import { createClient } from "@/utils/supabase/client";
+import LogoLoader from "@/components/LogoLoader";
+import { useToast } from "@/components/Toast";
 
 export default function AdminGallery() {
   const router = useRouter();
@@ -20,10 +22,7 @@ export default function AdminGallery() {
   const [deleting, setDeleting] = useState(false);
 
   const categories = ["All", "Exterior", "Interior", "Amenities"];
-
-  useEffect(() => {
-    fetchGallery();
-  }, []);
+  const toast = useToast();
 
   const fetchGallery = async () => {
     const supabase = createClient();
@@ -35,6 +34,10 @@ export default function AdminGallery() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchGallery();
+  }, []);
+
   const openDeleteModal = (image) => {
     setSelectedImage(image);
     setIsDeleteModalOpen(true);
@@ -45,19 +48,33 @@ export default function AdminGallery() {
     setDeleting(true);
     const supabase = createClient();
 
-    // If the URL is from our storage bucket, delete the storage object
-    const bucketUrl = process.env.NEXT_PUBLIC_SUPABASE_URL + "/storage/v1/object/public/property-images/";
-    if (selectedImage.url.startsWith(bucketUrl)) {
-      const filePath = selectedImage.url.replace(bucketUrl, "");
-      await supabase.storage.from("property-images").remove([filePath]);
-    }
+    try {
+      // If the URL is from our storage bucket, delete the storage object
+      const bucketUrl = process.env.NEXT_PUBLIC_SUPABASE_URL + "/storage/v1/object/public/property-images/";
+      if (selectedImage.url.startsWith(bucketUrl)) {
+        const filePath = selectedImage.url.replace(bucketUrl, "");
+        const { error: storageError } = await supabase.storage.from("property-images").remove([filePath]);
+        if (storageError) {
+          throw new Error(`Storage delete failed: ${storageError.message}`);
+        }
+      }
 
-    await supabase.from("gallery").delete().eq("id", selectedImage.id);
-    setIsDeleteModalOpen(false);
-    setSelectedImage(null);
-    setDeleting(false);
-    fetchGallery();
-    router.refresh();
+      const { error: dbError } = await supabase.from("gallery").delete().eq("id", selectedImage.id);
+      if (dbError) {
+        throw new Error(`Database delete failed: ${dbError.message}`);
+      }
+
+      setIsDeleteModalOpen(false);
+      setSelectedImage(null);
+      toast.success("Image deleted successfully!");
+      fetchGallery();
+      router.refresh();
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error(`Failed to delete image: ${err.message}`);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleUploadSuccess = () => {
@@ -109,7 +126,7 @@ export default function AdminGallery() {
 
       {/* Gallery Grid */}
       {loading ? (
-        <div className="py-16 text-center text-gray-400">Loading gallery...</div>
+        <LogoLoader />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredGallery.map((image) => (
@@ -121,8 +138,8 @@ export default function AdminGallery() {
                 className="object-cover transition-transform duration-500 group-hover:scale-110" 
               />
               
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
+              {/* Overlay - always visible on mobile, hover on desktop */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent md:bg-black/50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
                 <div className="flex justify-between items-start">
                   <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1 rounded-full text-xs font-bold leading-none shadow-sm">
                     {image.category}
@@ -218,6 +235,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [category, setCategory] = useState("");
   const [caption, setCaption] = useState("");
+  const toast = useToast();
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -261,6 +279,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
 
     if (uploadError) {
       setError(`Upload failed: ${uploadError.message}`);
+      toast.error(`Upload failed: ${uploadError.message}`);
       setSaving(false);
       return;
     }
@@ -278,10 +297,12 @@ function UploadForm({ onSuccess, onClose, categories }) {
 
     if (insertError) {
       setError(`Save failed: ${insertError.message}`);
+      toast.error(`Upload failed: ${insertError.message}`);
       setSaving(false);
       return;
     }
 
+    toast.success("Image uploaded successfully!");
     onSuccess();
   };
 
