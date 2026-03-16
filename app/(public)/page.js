@@ -82,7 +82,7 @@ export default function Home() {
             </motion.p>
               
               {/* Search Element matching the reference design */}
-              <motion.div
+              {/* <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -100,7 +100,7 @@ export default function Home() {
                 <button className="bg-accent hover:bg-white hover:text-accent border border-transparent hover:border-accent text-white w-12 h-12 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(224,155,107,0.3)]">
                   <BsArrowRight className="text-xl" />
                 </button>
-              </motion.div>
+              </motion.div> */}
             </motion.div>
 
             {/* Right Column - Visual Asset (Video/Image) */}
