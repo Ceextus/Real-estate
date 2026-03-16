@@ -14,7 +14,7 @@ const navLinks = [
   { name: "Properties", href: "/properties" },
   { name: "Gallery", href: "/gallery" },
   { name: "Contact Us", href: "/contact" },
-  // { name: "Admin", href: "/admin" },
+  { name: "Login", href: "/admin" },
   
   // { name: "Rent", href: "/rent" },
 ];
