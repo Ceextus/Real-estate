@@ -144,7 +144,7 @@ export default function AboutUs() {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
           >
             <source
-              src="https://www.freepik.com/free-video/moving-rocks-crusher-with-spades_5911#fromView=search&page=1&position=9&uuid=ba207994-4949-481e-9565-882983ef5937"
+              src="images/site.mp4"
               type="video/mp4"
             />
           </video>
