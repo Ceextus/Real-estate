@@ -21,7 +21,7 @@ export default function PropertiesClient({ properties }) {
     const matchesFilter = activeFilter === "All" || property.property_type === activeFilter;
 
     return matchesSearch && matchesFilter;
-  });
+  }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredProperties.length / ITEMS_PER_PAGE);

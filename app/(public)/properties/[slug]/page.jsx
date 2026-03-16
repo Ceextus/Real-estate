@@ -60,7 +60,7 @@ export default async function PropertyDetails({ params }) {
               </h1>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[2rem] text-center">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-4xl text-center">
               <p className="text-white/60 text-xs tracking-widest uppercase mb-1 font-semibold">
                 Asking Price
               </p>
@@ -139,7 +139,7 @@ export default async function PropertyDetails({ params }) {
               const embedMatch = url.match(/(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
               if (embedMatch) videoId = embedMatch[1];
             }
-            return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : null;
+            return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1&mute=1` : null;
           };
 
           const embedUrl = getYouTubeEmbedUrl(property.video_placeholder);

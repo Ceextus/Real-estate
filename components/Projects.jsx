@@ -22,7 +22,11 @@ export default function Projects() {
         .from("properties")
         .select("*")
         .order("created_at", { ascending: false });
-      if (data) setProjects(data);
+      if (data) {
+        // Enforce JS-side sorting just in case PG returns randomly
+        const sortedData = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setProjects(sortedData);
+      }
       setLoading(false);
     }
     fetchProjects();
