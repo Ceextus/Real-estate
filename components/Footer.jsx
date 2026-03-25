@@ -61,7 +61,7 @@ export default function Footer() {
         </div>
 
         {/* Center Text */}
-        <p className="text-[#a4b6ad] text-center max-w-lg mb-8 font-medium text-lg leading-relaxed">
+        <p className="text-[#8A96B0] text-center max-w-lg mb-8 font-medium text-lg leading-relaxed">
           We take great pride in ensuring the satisfaction{" "}
           <br className="hidden sm:block" />
           of our customers, which
@@ -108,6 +108,12 @@ export default function Footer() {
             className="hover:text-accent transition-colors"
           >
             PROPERTIES
+          </Link>
+          <Link
+            href="/blog"
+            className="hover:text-accent transition-colors"
+          >
+            BLOG
           </Link>
           <Link
             href="/gallery"

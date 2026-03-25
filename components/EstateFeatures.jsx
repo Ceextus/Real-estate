@@ -93,7 +93,7 @@ export default function EstateFeatures() {
           <div className="h-px w-full bg-linear-to-r from-transparent via-white/20 to-transparent mb-16" />
 
           <div className="text-center">
-            <div className="w-2 h-2 bg-accent rounded-full mx-auto mb-8 shadow-[0_0_10px_rgba(224,155,107,0.8)]" />
+            <div className="w-2 h-2 bg-accent rounded-full mx-auto mb-8 shadow-[0_0_10px_rgba(201,168,76,0.8)]" />
             <p className="text-white text-lg md:text-xl font-medium tracking-wide mb-6">
               &quot;We will never stop delivering the highest quality lands and
               properties with secure titles.&quot;

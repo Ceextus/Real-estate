@@ -231,79 +231,108 @@ export default function AdminGallery() {
 function UploadForm({ onSuccess, onClose, categories }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [category, setCategory] = useState("");
   const [caption, setCaption] = useState("");
   const toast = useToast();
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-  const handleImageSelect = (file) => {
-    if (!file) return;
-    if (file.size > MAX_FILE_SIZE) { setError("Image must be under 10MB."); return; }
-    if (!file.type.startsWith("image/")) { setError("Please select an image file."); return; }
-    setError("");
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+  const handleImagesSelect = (files) => {
+    if (!files || files.length === 0) return;
+    const validFiles = Array.from(files).filter(file => {
+      if (file.size > MAX_FILE_SIZE) { setError(`File ${file.name} is too large (max 10MB).`); return false; }
+      if (!file.type.startsWith("image/")) { setError(`File ${file.name} is not a valid image.`); return false; }
+      return true;
+    });
+
+    if (validFiles.length > 0) {
+      setError("");
+      setImageFiles(prev => [...prev, ...validFiles]);
+      setImagePreviews(prev => [
+        ...prev, 
+        ...validFiles.map(f => URL.createObjectURL(f))
+      ]);
+    }
+  };
+
+  const removeNewImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => {
+      const newPreviews = [...prev];
+      URL.revokeObjectURL(newPreviews[index]);
+      newPreviews.splice(index, 1);
+      return newPreviews;
+    });
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    handleImageSelect(e.dataTransfer?.files?.[0]);
+    handleImagesSelect(e.dataTransfer?.files);
   };
 
-  const clearImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const clearImages = () => {
+    setImageFiles([]);
+    setImagePreviews([]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imageFile) { setError("Please select an image."); return; }
+    if (imageFiles.length === 0) { setError("Please select at least one image."); return; }
     if (!category) { setError("Please select a category."); return; }
 
     setSaving(true);
     setError("");
 
     const supabase = createClient();
+    let hasError = false;
 
-    // Upload to storage
-    const fileExt = imageFile.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const filePath = `gallery/${fileName}`;
+    // Process all images
+    for (const file of imageFiles) {
+      // Upload to storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const filePath = `gallery/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("property-images")
-      .upload(filePath, imageFile);
+      const { error: uploadError } = await supabase.storage
+        .from("property-images")
+        .upload(filePath, file);
 
-    if (uploadError) {
-      setError(`Upload failed: ${uploadError.message}`);
-      toast.error(`Upload failed: ${uploadError.message}`);
-      setSaving(false);
-      return;
+      if (uploadError) {
+        setError(`Upload failed for ${file.name}: ${uploadError.message}`);
+        toast.error(`Upload failed for ${file.name}: ${uploadError.message}`);
+        hasError = true;
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("property-images")
+        .getPublicUrl(filePath);
+
+      // Insert row into gallery table
+      const { error: insertError } = await supabase.from("gallery").insert({
+        category,
+        url: urlData.publicUrl,
+        caption: caption || null,
+      });
+
+      if (insertError) {
+        setError(`Save failed for ${file.name}: ${insertError.message}`);
+        toast.error(`Upload failed for ${file.name}: ${insertError.message}`);
+        hasError = true;
+      }
     }
 
-    const { data: urlData } = supabase.storage
-      .from("property-images")
-      .getPublicUrl(filePath);
-
-    // Insert row into gallery table
-    const { error: insertError } = await supabase.from("gallery").insert({
-      category,
-      url: urlData.publicUrl,
-      caption: caption || null,
-    });
-
-    if (insertError) {
-      setError(`Save failed: ${insertError.message}`);
-      toast.error(`Upload failed: ${insertError.message}`);
-      setSaving(false);
-      return;
+    setSaving(false);
+    
+    if (!hasError) {
+      toast.success(`${imageFiles.length} image(s) uploaded successfully!`);
+      onSuccess();
+    } else if (imageFiles.length > 1) {
+      // If some succeeded and some failed, still close the modal but user saw the errors
+      onSuccess();
     }
-
-    toast.success("Image uploaded successfully!");
-    onSuccess();
   };
 
   return (
@@ -314,27 +343,38 @@ function UploadForm({ onSuccess, onClose, categories }) {
       )}
 
       {/* Image Upload Area */}
-      <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 block">Image <span className="text-gray-400 font-normal">(max 10MB)</span></label>
-        {imagePreview ? (
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-            <button type="button" onClick={clearImage}
-              className="absolute top-2 right-2 bg-white rounded-full shadow-md p-1.5 hover:bg-red-50 transition-colors">
-              <BsXCircleFill className="text-red-500 text-lg" />
-            </button>
-          </div>
-        ) : (
+      <div className="space-y-4">
+        <div>
+          <label className="text-sm font-semibold text-gray-700 block mb-1">Images <span className="text-gray-400 font-normal">(max 10MB each)</span></label>
           <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}
-            onClick={() => document.getElementById("gallery-image-upload").click()}
-            className="w-full aspect-video border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 flex flex-col items-center justify-center p-6 text-center hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer group">
-            <BsCloudUpload className="text-5xl text-gray-300 mb-4 group-hover:text-accent/50 transition-colors" />
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Click or drag image here</h3>
-            <p className="text-sm text-gray-500">Supports JPG, PNG, WEBP (Max 10MB)</p>
+            onClick={() => document.getElementById("gallery-images-upload").click()}
+            className="w-full py-8 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 flex flex-col items-center justify-center text-center hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer group">
+            <BsCloudUpload className="text-4xl text-gray-300 mb-2 group-hover:text-accent/50 transition-colors" />
+            <h3 className="text-base font-bold text-gray-900 mb-1">Click or drag images here</h3>
+            <p className="text-xs text-gray-500">Supports JPG, PNG, WEBP (multiple allowed)</p>
+          </div>
+          <input id="gallery-images-upload" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden" onChange={(e) => handleImagesSelect(e.target.files)} />
+        </div>
+
+        {/* Previews Grid */}
+        {imagePreviews.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {imagePreviews.map((preview, idx) => (
+              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-accent/30 bg-gray-50 group">
+                <img src={preview} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeNewImage(idx)}
+                  className="absolute top-2 right-2 bg-white rounded-full shadow-md p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 text-red-500"
+                  title="Remove image"
+                >
+                  <BsXCircleFill size={14} />
+                </button>
+              </div>
+            ))}
           </div>
         )}
-        <input id="gallery-image-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden" onChange={(e) => handleImageSelect(e.target.files?.[0])} />
       </div>
 
       <div className="space-y-2">
@@ -376,7 +416,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
           disabled={saving}
           className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-70"
         >
-          {saving ? "Uploading..." : "Upload Image"}
+          {saving ? "Uploading..." : "Upload Images"}
         </button>
       </div>
       

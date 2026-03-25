@@ -56,8 +56,8 @@ export default function FloatingActionButton() {
             <motion.div
               animate={{
                 boxShadow: [
-                  "0 0 0 0 rgba(224, 155, 107, 0.4)",
-                  "0 0 0 20px rgba(224, 155, 107, 0)",
+                  "0 0 0 0 rgba(201, 168, 76, 0.4)",
+                  "0 0 0 20px rgba(201, 168, 76, 0)",
                 ],
               }}
               transition={{
@@ -72,7 +72,7 @@ export default function FloatingActionButton() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-3 bg-[#11241a] text-white px-5 py-4 sm:px-6 sm:py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] border border-accent/30 group relative overflow-hidden"
+              className="flex items-center gap-3 bg-[#0B1D3A] text-white px-5 py-4 sm:px-6 sm:py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] border border-accent/30 group relative overflow-hidden"
             >
               {/* Shine effect */}
               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent z-0" />

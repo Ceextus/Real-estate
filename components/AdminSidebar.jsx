@@ -11,7 +11,8 @@ import {
   HiOutlineChatAlt2, 
   HiOutlineCog,
   HiOutlineLogout,
-  HiOutlineCalendar
+  HiOutlineCalendar,
+  HiOutlineNewspaper
 } from "react-icons/hi";
 import { GoHomeFill } from "react-icons/go";
 import { createClient } from "@/utils/supabase/client";
@@ -19,6 +20,7 @@ import { createClient } from "@/utils/supabase/client";
 const navLinks = [
   { name: "Dashboard", href: "/admin", icon: HiOutlineHome, exact: true },
   { name: "Properties", href: "/admin/properties", icon: HiOutlineOfficeBuilding },
+  { name: "Blog Posts", href: "/admin/blog", icon: HiOutlineNewspaper },
   { name: "Team Members", href: "/admin/team", icon: HiOutlineUsers },
   { name: "Gallery", href: "/admin/gallery", icon: HiOutlinePhotograph },
   { name: "Messages", href: "/admin/messages", icon: HiOutlineChatAlt2 },

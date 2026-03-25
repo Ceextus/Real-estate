@@ -55,7 +55,7 @@ export default function Projects() {
   if (projects.length === 0) return null;
 
   return (
-    <section className="relative bg-[#1a3828] pt-24 pb-24 overflow-hidden">
+    <section className="relative bg-[#0F2447] pt-24 pb-24 overflow-hidden">
       {/* Texture: Vertical Grid Lines Background matching the reference */}
       <div
         className="absolute inset-0 pointer-events-none opacity-20"

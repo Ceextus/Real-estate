@@ -34,8 +34,8 @@ export default function SettingsPage() {
   });
 
   const [theme, setTheme] = useState({
-    primary_color: "#1D4734",
-    accent_color: "#E09B6B",
+    primary_color: "#0B1D3A",
+    accent_color: "#C9A84C",
   });
 
   const [media, setMedia] = useState({

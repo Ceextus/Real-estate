@@ -43,7 +43,7 @@ export default function BookInspectionForm({ propertyId, propertyTitle }) {
 
   if (submitted) {
     return (
-      <div className="sticky top-28 bg-[#11241a] border border-white/10 p-8 md:p-10 rounded-[40px] shadow-2xl text-center">
+      <div className="sticky top-28 bg-primary border border-white/10 p-8 md:p-10 rounded-[40px] shadow-2xl text-center">
         <div className="w-20 h-20 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -64,7 +64,7 @@ export default function BookInspectionForm({ propertyId, propertyTitle }) {
   }
 
   return (
-    <div className="sticky top-28 bg-[#11241a] border border-white/10 p-8 md:p-10 rounded-[40px] shadow-2xl">
+    <div className="sticky top-28 bg-primary border border-white/10 p-8 md:p-10 rounded-[40px] shadow-2xl">
       <div className="text-center mb-10">
         <div className="w-16 h-1 bg-accent mx-auto mb-6 rounded-full"></div>
         <h3 className="text-2xl font-bold text-white tracking-widest uppercase mb-2">
@@ -126,7 +126,7 @@ export default function BookInspectionForm({ propertyId, propertyTitle }) {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-accent text-white font-bold text-sm tracking-wider uppercase py-5 rounded-2xl hover:bg-white hover:text-primary transition-all duration-300 shadow-[0_0_20px_rgba(224,155,107,0.2)] hover:shadow-[0_0_30px_rgba(224,155,107,0.4)] mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-accent text-white font-bold text-sm tracking-wider uppercase py-5 rounded-2xl hover:bg-white hover:text-primary transition-all duration-300 shadow-[0_0_20px_rgba(201,168,76,0.2)] hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {submitting ? "Submitting..." : "Request Tour Schedule"}
         </button>

@@ -12,6 +12,7 @@ const navLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
   { name: "Properties", href: "/properties" },
+  { name: "Blog", href: "/blog" },
   { name: "Gallery", href: "/gallery" },
   { name: "Contact Us", href: "/contact" },
   { name: "Login", href: "/admin" },
@@ -151,7 +152,7 @@ export default function Navbar() {
                 whileHover={{
                   scale: 1.1,
                   backgroundColor: scrolled
-                    ? "rgba(29,71,52,0.1)"
+                    ? "rgba(11,29,58,0.1)"
                     : "rgba(255,255,255,0.15)",
                 }}
                 whileTap={{ scale: 0.9 }}

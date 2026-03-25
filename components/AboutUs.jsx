@@ -46,7 +46,7 @@ export default function AboutUs() {
   return (
     <section
       ref={containerRef}
-      className="bg-[#0B120F] relative pt-32 pb-16 overflow-hidden"
+      className="bg-[#070D1A] relative pt-32 pb-16 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -78,7 +78,7 @@ export default function AboutUs() {
               </p>
               <Link
                 href="/contact"
-                className="inline-block bg-accent hover:bg-white text-white hover:text-primary px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 shadow-[0_0_15px_rgba(224,155,107,0.3)] hover:shadow-lg hover:scale-105 active:scale-95"
+                className="inline-block bg-accent hover:bg-white text-white hover:text-primary px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 shadow-[0_0_15px_rgba(201,168,76,0.3)] hover:shadow-lg hover:scale-105 active:scale-95"
               >
                 Get Started
               </Link>
