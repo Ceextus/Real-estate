@@ -61,10 +61,11 @@ export default function Footer() {
         </div>
 
         {/* Center Text */}
-        <p className="text-[#8A96B0] text-center max-w-lg mb-8 font-medium text-lg leading-relaxed">
-          We take great pride in ensuring the satisfaction{" "}
-          <br className="hidden sm:block" />
-          of our customers, which
+        <p className="text-[#8A96B0] text-center max-w-lg mb-2 font-medium text-lg leading-relaxed">
+          Real Estate Developers, Consultancy and Valuers
+        </p>
+        <p className="text-[#8A96B0]/60 text-center text-sm mb-8 font-medium tracking-wide">
+          WE BUILD · SELL · MANAGE · VALUE PROPERTIES &nbsp;|&nbsp; RC: 1146437
         </p>
 
         {/* Social Media Icons */}
@@ -84,6 +85,47 @@ export default function Footer() {
               </Link>
             );
           })}
+        </div>
+        {/* Payment Options & Subsidiary */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          {/* Payment Options */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Payment Options</h3>
+            <ul className="text-white/60 text-sm space-y-2">
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                Outright Full Payment (attracts 5% discount)
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                Down Payment: 40%
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                Installmental: 50%, 30% &amp; 20% within 1 year
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                Registration Fee: ₦10,000
+              </li>
+            </ul>
+          </div>
+
+          {/* Subsidiary */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Subsidiary Company</h3>
+            <p className="text-white/70 text-sm font-medium mb-3">
+              Andreams Global Sanitation Services Ltd (AGSS)
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="bg-accent/20 text-accent text-xs font-bold px-3 py-1.5 rounded-full border border-accent/30">
+                Crystal Fresh — Liquid Soap &amp; Disinfectants
+              </span>
+              <span className="bg-accent/20 text-accent text-xs font-bold px-3 py-1.5 rounded-full border border-accent/30">
+                Stainless — Whitener &amp; Disinfectants
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Divider Line */}

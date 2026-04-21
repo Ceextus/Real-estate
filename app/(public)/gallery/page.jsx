@@ -2,21 +2,21 @@ import { createClient } from "@/utils/supabase/server";
 import GalleryClient from "./GalleryClient";
 
 export const metadata = {
-  title: "Gallery — Luxury Property Photos & Interiors",
+  title: "Gallery — Property Photos & Project Portfolio",
   description:
-    "Explore stunning photos of Andreams Homes luxury properties — exteriors, interiors, smart home features, and premium amenities across Lagos, Nigeria.",
+    "Explore photos of Andreams Homes properties — exteriors, interiors, estate developments, and project sites across Abuja FCT and Lagos, Nigeria.",
   alternates: { canonical: "/gallery" },
   openGraph: {
-    title: "Gallery — Luxury Property Photos | Andreams Homes",
+    title: "Gallery — Property Photos & Projects | Andreams Homes",
     description:
-      "Browse our curated collection of luxury property images — world-class interiors, exteriors, and premium amenities.",
+      "Browse our collection of property images — estate developments, completed projects, and ongoing construction across Abuja and Lagos.",
     url: "/gallery",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gallery — Luxury Property Photos | Andreams Homes",
+    title: "Gallery — Property Photos & Projects | Andreams Homes",
     description:
-      "Browse our curated collection of luxury property images across Lagos, Nigeria.",
+      "Browse our collection of property images across Abuja and Lagos, Nigeria.",
   },
 };
 

@@ -3,14 +3,14 @@ import PropertyCard from "@/components/PropertyCard";
 import PropertiesClient from "./PropertiesClient";
 
 export const metadata = {
-  title: "Properties for Sale in Lagos — Luxury Homes & Land",
+  title: "Properties for Sale in Abuja & Lagos — Homes, Plots & Land",
   description:
-    "Browse exclusive luxury properties for sale in Lagos, Nigeria. Villas, apartments, duplexes, and serviced land in Banana Island, Ikoyi, Lekki & more — with verified titles.",
+    "Browse affordable properties for sale in Abuja and Lagos, Nigeria. Duplexes, bungalows, serviced plots, and land in Karu, Kurudu, Lugbe, Jikwoyi, Asokoro & more — with verified C of O titles.",
   alternates: { canonical: "/properties" },
   openGraph: {
-    title: "Properties for Sale in Lagos — Luxury Homes & Land",
+    title: "Properties for Sale in Abuja & Lagos — Homes, Plots & Land",
     description:
-      "Explore Andreams Homes' curated portfolio of premium properties across Lagos. Smart homes, off-plan investments, and move-in-ready residences.",
+      "Explore Andreams Homes' portfolio of affordable properties across Abuja FCT and Lagos. Serviced plots, duplexes, bungalows, and land investments.",
     url: "/properties",
   },
 };

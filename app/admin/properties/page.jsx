@@ -255,7 +255,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
     price: property?.price || "",
     type: property?.type || "",
     image: property?.image || "",
-    images: property?.images || [], // <--- New array field
+    images: property?.images || [],
     beds: property?.beds || "",
     status: property?.status || "",
     property_type: property?.property_type || "Move-In Ready",
@@ -264,7 +264,30 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
     features: property?.features?.join("\n") || "",
     video_placeholder: property?.video_placeholder || "",
     map_embed: property?.map_embed || "",
+    developer: property?.developer || "",
+    supported_by: property?.supported_by || "",
+    registration_fee: property?.registration_fee || "",
+    payment_options: property?.payment_options?.join("\n") || "",
+    facilities: property?.facilities || [],
   });
+
+  // Plot types state (dynamic rows)
+  const [plotTypes, setPlotTypes] = useState(
+    property?.plot_types?.length ? property.plot_types : [{ type: "", size: "", units: "", price: "" }]
+  );
+
+  // Service plots state (dynamic rows)
+  const [servicePlots, setServicePlots] = useState(
+    property?.service_plots?.length ? property.service_plots : [{ size: "", house_type: "", price: "" }]
+  );
+
+  // Bank details state (dynamic rows)
+  const [bankDetails, setBankDetails] = useState(
+    property?.bank_details?.length ? property.bank_details : [{ bank: "", account_name: "", account_no: "" }]
+  );
+
+  // Show/hide extended fields
+  const [showProjectDetails, setShowProjectDetails] = useState(false);
 
   // State for multiple auxiliary images
   const [auxImageFiles, setAuxImageFiles] = useState([]);
@@ -433,7 +456,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       price: form.price,
       type: form.type,
       image: imageUrl,
-      images: finalAuxImagesArray, // Save the array of strings
+      images: finalAuxImagesArray,
       beds: form.beds,
       status: form.status,
       property_type: form.property_type,
@@ -442,6 +465,14 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       features: form.features.split("\n").filter(f => f.trim() !== ""),
       video_placeholder: form.video_placeholder || null,
       map_embed: form.map_embed || null,
+      developer: form.developer || null,
+      supported_by: form.supported_by || null,
+      registration_fee: form.registration_fee || null,
+      plot_types: plotTypes.filter(p => p.type || p.size || p.price),
+      service_plots: servicePlots.filter(s => s.size || s.house_type || s.price),
+      payment_options: form.payment_options.split("\n").filter(f => f.trim() !== ""),
+      bank_details: bankDetails.filter(b => b.bank || b.account_name || b.account_no),
+      facilities: form.facilities.filter(f => f),
     };
 
     let result;
@@ -482,7 +513,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <label className="text-sm font-semibold text-gray-700 block">Location</label>
           <input 
             type="text" name="location" value={form.location} onChange={handleChange}
-            placeholder="e.g. Lekki Phase 1, Lagos" required
+            placeholder="e.g. Karu, Abuja FCT" required
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
@@ -680,6 +711,205 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           placeholder="Paste Google Maps iframe code or src URL here"
           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
         />
+      </div>
+
+      {/* ─── Extended Project Details (Collapsible) ─── */}
+      <div className="border-t border-gray-100 pt-6">
+        <button
+          type="button"
+          onClick={() => setShowProjectDetails(!showProjectDetails)}
+          className="w-full flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors"
+        >
+          <span>📋 Project Details (Plot Types, Payment Plans, Bank Info)</span>
+          <span className="text-gray-400">{showProjectDetails ? "▲" : "▼"}</span>
+        </button>
+
+        {showProjectDetails && (
+          <div className="space-y-6 mt-6 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+            {/* Developer & Supported By */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 block">Developer / Company</label>
+                <input
+                  type="text" name="developer" value={form.developer} onChange={handleChange}
+                  placeholder="e.g. Andreams Global Properties Ltd"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 block">Supported By</label>
+                <input
+                  type="text" name="supported_by" value={form.supported_by} onChange={handleChange}
+                  placeholder="e.g. Brook Fields Company"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+                />
+              </div>
+            </div>
+
+            {/* Registration Fee */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 block">Registration Fee</label>
+              <input
+                type="text" name="registration_fee" value={form.registration_fee} onChange={handleChange}
+                placeholder="e.g. ₦10,000"
+                className="w-full sm:w-1/2 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+              />
+            </div>
+
+            {/* Plot Types (Dynamic Rows) */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-gray-700 block">Plot Types & Pricing</label>
+              {plotTypes.map((plot, idx) => (
+                <div key={idx} className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+                  <input
+                    placeholder="Type (e.g. 4-Bed Duplex)"
+                    value={plot.type} onChange={(e) => { const n = [...plotTypes]; n[idx].type = e.target.value; setPlotTypes(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-2"
+                  />
+                  <input
+                    placeholder="Size (e.g. 840 sqm)"
+                    value={plot.size} onChange={(e) => { const n = [...plotTypes]; n[idx].size = e.target.value; setPlotTypes(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  />
+                  <input
+                    placeholder="Units"
+                    value={plot.units} onChange={(e) => { const n = [...plotTypes]; n[idx].units = e.target.value; setPlotTypes(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      placeholder="Price"
+                      value={plot.price} onChange={(e) => { const n = [...plotTypes]; n[idx].price = e.target.value; setPlotTypes(n); }}
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    />
+                    {plotTypes.length > 1 && (
+                      <button type="button" onClick={() => setPlotTypes(plotTypes.filter((_, i) => i !== idx))}
+                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                      >✕</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button type="button" onClick={() => setPlotTypes([...plotTypes, { type: "", size: "", units: "", price: "" }])}
+                className="text-sm text-accent font-semibold hover:underline"
+              >+ Add Plot Type</button>
+            </div>
+
+            {/* Service Plots (Dynamic Rows) */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-gray-700 block">Service Plots</label>
+              {servicePlots.map((sp, idx) => (
+                <div key={idx} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+                  <input
+                    placeholder="Size (e.g. 500 sqm)"
+                    value={sp.size} onChange={(e) => { const n = [...servicePlots]; n[idx].size = e.target.value; setServicePlots(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  />
+                  <input
+                    placeholder="House Type (e.g. 4-Bed Duplex)"
+                    value={sp.house_type} onChange={(e) => { const n = [...servicePlots]; n[idx].house_type = e.target.value; setServicePlots(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-1 sm:col-span-2"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      placeholder="Price"
+                      value={sp.price} onChange={(e) => { const n = [...servicePlots]; n[idx].price = e.target.value; setServicePlots(n); }}
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    />
+                    {servicePlots.length > 1 && (
+                      <button type="button" onClick={() => setServicePlots(servicePlots.filter((_, i) => i !== idx))}
+                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                      >✕</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button type="button" onClick={() => setServicePlots([...servicePlots, { size: "", house_type: "", price: "" }])}
+                className="text-sm text-accent font-semibold hover:underline"
+              >+ Add Service Plot</button>
+            </div>
+
+            {/* Payment Options */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 block">Payment Options (one per line)</label>
+              <textarea
+                name="payment_options" value={form.payment_options} onChange={handleChange}
+                rows={4} placeholder={"Outright Full Payment (5% discount)\nDown Payment: 40%\nInstallmental: 50%, 30% & 20% within 1 year\nRegistration Fee: ₦10,000"}
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y text-sm"
+              />
+            </div>
+
+            {/* Bank Details (Dynamic Rows) */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-gray-700 block">Bank Details</label>
+              {bankDetails.map((bd, idx) => (
+                <div key={idx} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+                  <input
+                    placeholder="Bank Name"
+                    value={bd.bank} onChange={(e) => { const n = [...bankDetails]; n[idx].bank = e.target.value; setBankDetails(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  />
+                  <input
+                    placeholder="Account Name"
+                    value={bd.account_name} onChange={(e) => { const n = [...bankDetails]; n[idx].account_name = e.target.value; setBankDetails(n); }}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-1 sm:col-span-2"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      placeholder="Account No"
+                      value={bd.account_no} onChange={(e) => { const n = [...bankDetails]; n[idx].account_no = e.target.value; setBankDetails(n); }}
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    />
+                    {bankDetails.length > 1 && (
+                      <button type="button" onClick={() => setBankDetails(bankDetails.filter((_, i) => i !== idx))}
+                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                      >✕</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button type="button" onClick={() => setBankDetails([...bankDetails, { bank: "", account_name: "", account_no: "" }])}
+                className="text-sm text-accent font-semibold hover:underline"
+              >+ Add Bank Account</button>
+            </div>
+
+            {/* Facilities Checkboxes */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-gray-700 block">Standard Facilities</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  "Water (Bore Holes)",
+                  "Electricity (PHCN)",
+                  "Access Road / Police Post",
+                  "Clinic / School",
+                  "Religious Centres",
+                  "Corner Shops / Malls",
+                  "Sport Facilities",
+                  "Administrative Office",
+                  "Gas Station",
+                  "ATM Galaxy",
+                  "Estate Transports",
+                ].map((facility) => (
+                  <label key={facility} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.facilities.includes(facility)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setForm(prev => ({ ...prev, facilities: [...prev.facilities, facility] }));
+                        } else {
+                          setForm(prev => ({ ...prev, facilities: prev.facilities.filter(f => f !== facility) }));
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent"
+                    />
+                    {facility}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">

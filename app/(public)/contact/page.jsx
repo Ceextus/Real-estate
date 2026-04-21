@@ -56,9 +56,10 @@ export default async function ContactPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
-    name: "Andreams Homes",
+    name: "Andreams Global Properties Ltd",
+    alternateName: "Andreams Homes",
     description:
-      "Lagos's premier luxury real estate developer. Explore exclusive properties for sale, land investments, and bespoke smart homes.",
+      "Abuja-based real estate developer offering affordable homes, serviced plots, and property investments across Abuja FCT and Lagos, Nigeria.",
     url: siteUrl,
     logo: `${siteUrl}/logo.png`,
     image: `${siteUrl}/logo.png`,

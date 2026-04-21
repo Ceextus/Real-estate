@@ -19,26 +19,27 @@ export const metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: "Andreams Homes | Luxury Real Estate in Lagos, Nigeria",
+    default: "Andreams Homes | Real Estate Developers in Abuja & Lagos, Nigeria",
     template: "%s | Andreams Homes",
   },
 
   description:
-    "Andreams Homes is Lagos's premier luxury real estate developer. Explore exclusive properties for sale, land investments, and bespoke smart homes in Lekki, Ikoyi, Banana Island, and beyond.",
+    "Andreams Global Properties Ltd (AGPL) — Abuja's premier real estate developer. Explore affordable homes, serviced plots, and property investments across Abuja FCT, Karu, Kurudu, Lugbe, Jikwoyi, and Lagos.",
 
   keywords: [
-    "luxury real estate Nigeria",
+    "real estate developer Abuja",
     "properties for sale Abuja",
     "homes for sale Nigeria",
     "Andreams Homes",
-    "real estate developer Nigeria",
+    "Andreams Global Properties",
+    "AGPL",
     "buy property Abuja",
-    "luxury homes Lagos",
-    "smart homes Nigeria",
+    "affordable homes Abuja",
+    "serviced plots Abuja",
     "real estate investment Nigeria",
-    "luxury apartments Abuja Lagos",
-    "property for sale Lekki",
-    "Ikoyi Banana Island property",
+    "property for sale Karu Kurudu Lugbe",
+    "land for sale Abuja FCT",
+    "property developer Lagos Nigeria",
   ],
 
   authors: [{ name: "Andreams Homes", url: siteUrl }],
@@ -61,24 +62,24 @@ export const metadata = {
     locale: "en_NG",
     url: siteUrl,
     siteName: "Andreams Homes",
-    title: "Andreams Homes | Luxury Real Estate in Lagos, Nigeria",
+    title: "Andreams Homes | Real Estate Developers in Abuja & Lagos, Nigeria",
     description:
-      "Andreams Homes is Lagos's premier luxury real estate developer. Explore exclusive properties for sale, land investments, and bespoke smart homes.",
+      "Andreams Global Properties Ltd — Abuja's premier real estate developer. Affordable homes, serviced plots, and property investments across Abuja FCT and Lagos.",
     images: [
       {
         url: "/og-default.jpg",
         width: 1200,
         height: 630,
-        alt: "Andreams Homes — Luxury Real Estate in Lagos",
+        alt: "Andreams Homes — Real Estate Developers in Abuja & Lagos",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Andreams Homes | Luxury Real Estate in Lagos, Nigeria",
+    title: "Andreams Homes | Real Estate Developers in Abuja & Lagos, Nigeria",
     description:
-      "Explore exclusive properties for sale, land investments, and bespoke smart homes in Lagos, Nigeria.",
+      "Explore affordable homes, serviced plots, and property investments across Abuja FCT and Lagos, Nigeria.",
     images: ["/og-default.jpg"],
     creator: "@Andreamshomes",
   },
@@ -102,14 +103,15 @@ export default function RootLayout({ children }) {
       {
         "@type": "Organization",
         "@id": `${siteUrl}/#organization`,
-        name: "Andreams Homes",
+        name: "Andreams Global Properties Ltd",
+        alternateName: "Andreams Homes",
         url: siteUrl,
         logo: {
           "@type": "ImageObject",
           url: `${siteUrl}/logo.png`,
         },
         description:
-          "Lagos's premier luxury real estate developer. Exclusive properties for sale, land investments, and bespoke smart homes.",
+          "Abuja-based real estate developer offering affordable homes, serviced plots, and property investments across Abuja FCT and Lagos, Nigeria. RC: 1146437.",
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "sales",

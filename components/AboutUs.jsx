@@ -7,9 +7,9 @@ import Link from "next/link";
 import { BsPlayFill } from "react-icons/bs";
 
 const stats = [
-  { value: "10", suffix: "+", label: "Awards Gained" },
-  { value: "20", suffix: "+", label: "Years of Experience" },
-  { value: "598", suffix: "+", label: "Rented Home Stay" },
+  { value: "9", suffix: "+", label: "Projects Delivered" },
+  { value: "13", suffix: "+", label: "Years of Experience" },
+  { value: "300", suffix: "+", label: "Happy Clients" },
 ];
 
 export default function AboutUs() {
@@ -72,9 +72,7 @@ export default function AboutUs() {
 
             <motion.div variants={itemVariants} className="max-w-sm mt-auto">
               <p className="text-white/60 text-sm leading-relaxed mb-8">
-                We take great pride in ensuring the satisfaction of our
-                customers. That&apos;s why we proudly guarantee the quality and
-                reliability of our products.
+                ANDREAM GLOBAL PROPERTIES LTD will become a specialist in turning slums into beautiful cities and turning a run-down and dilapidated building into a master piece.
               </p>
               <Link
                 href="/contact"
@@ -105,10 +103,7 @@ export default function AboutUs() {
               variants={itemVariants}
               className="text-white/60 text-lg max-w-2xl leading-relaxed mb-16"
             >
-              We take great pride in ensuring the satisfaction of our customers,
-              which is why we guarantee that the products we sell will bring
-              happiness to each and every customer. Our genuine care for
-              customer satisfaction is what sets us apart.
+              Founded in Abuja FCT in the year 2013 and started full operation in the year 2015, ANDREAMS GLOBAL PROPERTIES LTD, is a property development company that is based in Abuja. Our aim of starting this business is to work in tandem with the government of Nigeria and private and individuals to deliver affordable homes and properties for all classes of people in Nigeria.
             </motion.p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-4 border-t border-white/10 pt-12">

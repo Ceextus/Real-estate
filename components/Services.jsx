@@ -6,24 +6,34 @@ import { BsCheckCircleFill } from "react-icons/bs";
 
 const servicesList = [
   {
-    title: "Consultation",
-    icon: "/images/icon-consult.png", // Using a placeholder concept, we'll use react-icons for now
+    title: "Developing Properties for Clients",
   },
   {
-    title: "Design & Automation",
-    icon: "/images/icon-design.png",
+    title: "Leasing of Properties",
   },
   {
-    title: "Construction",
-    icon: "/images/icon-build.png",
+    title: "Renting of Properties",
   },
   {
-    title: "Project Management",
-    icon: "/images/icon-manage.png",
+    title: "Selling of Fully Furnished Properties",
   },
   {
-    title: "Smart Investment",
-    icon: "/images/icon-invest.png",
+    title: "Selling of Landed Properties",
+  },
+  {
+    title: "Leasing of Bare Land",
+  },
+  {
+    title: "Property & Facility Management",
+  },
+  {
+    title: "Property Make Over Services",
+  },
+  {
+    title: "Real Estate Consultancy",
+  },
+  {
+    title: "Advisory Services",
   },
 ];
 
@@ -67,19 +77,19 @@ export default function Services() {
                 </div>
 
                 <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight">
-                  What we offer <br /> our clients
+                  Projects &amp; <br /> Services
                 </h2>
 
                 <p className="text-white/60 text-base leading-relaxed font-medium">
-                  Step into a world where your needs shape our services.
-                  Offering bespoke configurations, innovative design &
-                  automation, meticulous construction, and strategic project
-                  management, we make your journey seamless.
+                  ANDREAMS GLOBAL PROPERTIES LTD is involved in the core
+                  real estate business. From property development and
+                  management to consultancy and advisory services, we
+                  deliver end-to-end real estate solutions for all classes
+                  of people in Nigeria.
                   <br />
                   <br />
-                  Plus, unlock smart investment avenues for unparalleled ROI.
-                  With us, it&apos;s more than a home—it&apos;s a lifetime
-                  investment.
+                  We build, sell, manage, and value properties — that&apos;s
+                  our promise to every client.
                 </p>
               </motion.div>
             </div>

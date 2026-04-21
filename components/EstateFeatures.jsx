@@ -2,36 +2,64 @@
 
 import { motion } from "framer-motion";
 import {
-  BsShieldCheck,
-  BsCarFront,
-  BsFingerprint,
-  BsPersonCheck,
+  BsDropletHalf,
+  BsLightningCharge,
+  BsSignpost2,
+  BsHospital,
+  BsShop,
+  BsTrophy,
+  BsBuilding,
+  BsBusFront,
 } from "react-icons/bs";
 
 const features = [
   {
-    icon: <BsShieldCheck className="text-4xl md:text-5xl text-accent mb-6" />,
-    title: "Central Security Control",
+    icon: <BsDropletHalf className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Water (Bore Holes)",
     description:
-      "24/7 monitoring and response systems ensuring complete peace of mind.",
+      "Reliable water supply through modern bore hole systems across all estates.",
   },
   {
-    icon: <BsCarFront className="text-4xl md:text-5xl text-accent mb-6" />,
-    title: "Automatic Numberplate Recognition",
+    icon: <BsLightningCharge className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Electricity (PHCN)",
     description:
-      "Seamless and secure vehicle access control for residents and approved guests.",
+      "Direct PHCN power connection with infrastructure for stable electricity supply.",
   },
   {
-    icon: <BsFingerprint className="text-4xl md:text-5xl text-accent mb-6" />,
-    title: "Pedestrian Biometric Access Control",
+    icon: <BsSignpost2 className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Access Road & Police Post",
     description:
-      "Advanced fingerprint scanning for secure pedestrian entry and exit.",
+      "Well-constructed access roads and police post for secure, easy entry and exit.",
   },
   {
-    icon: <BsPersonCheck className="text-4xl md:text-5xl text-accent mb-6" />,
-    title: "Facial Recognition",
+    icon: <BsHospital className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Clinic & School",
     description:
-      "State-of-the-art facial recognition technology for enhanced estate security.",
+      "On-estate healthcare clinics and schools for residents and families.",
+  },
+  {
+    icon: <BsBuilding className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Religious Centres",
+    description:
+      "Dedicated spaces for worship and religious activities within the estate.",
+  },
+  {
+    icon: <BsShop className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Shopping Malls & Corner Shops",
+    description:
+      "Convenient shopping centres and corner shops for everyday necessities.",
+  },
+  {
+    icon: <BsTrophy className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Sport Facilities",
+    description:
+      "Recreational and sport facilities to promote healthy living within estates.",
+  },
+  {
+    icon: <BsBusFront className="text-4xl md:text-5xl text-accent mb-6" />,
+    title: "Estate Transport & ATM",
+    description:
+      "Estate transport services and ATM Galaxy for residents' convenience.",
   },
 ];
 
@@ -52,15 +80,14 @@ export default function EstateFeatures() {
           className="text-center mb-20"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-accent tracking-wide">
-            Estate Features & Lands
+            Standard Estate Facilities
           </h2>
           <p className="text-white/60 mt-4 max-w-2xl mx-auto font-medium">
-            Secure your future with our premium lands offering authentic C of O
-            titles and state-of-the-art infrastructure.
+            Every Andreams estate comes with these standard facilities — ensuring quality infrastructure and a comfortable living environment for all residents.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-8 mb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 mb-24">
           {features.map((feature, index) => (
             <motion.div
               key={index}
@@ -98,7 +125,7 @@ export default function EstateFeatures() {
               &quot;We will never stop delivering the highest quality lands and
               properties with secure titles.&quot;
             </p>
-            <p className="text-gray-400 font-medium">- Andreams Homes Team.</p>
+            <p className="text-gray-400 font-medium">- Andreams Global Properties Ltd.</p>
           </div>
         </motion.div>
       </div>

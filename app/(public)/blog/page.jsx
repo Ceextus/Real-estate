@@ -4,19 +4,19 @@ import BlogCard from "@/components/BlogCard";
 export const metadata = {
   title: "Blog — Real Estate News & Insights",
   description:
-    "Stay up to date with the latest real estate news, market insights, property investment tips, and project updates from Andreams Homes Lagos.",
+    "Stay up to date with the latest real estate news, market insights, property investment tips, and project updates from Andreams Global Properties Ltd.",
   alternates: { canonical: "/blog" },
   openGraph: {
     title: "Blog — Real Estate News & Insights | Andreams Homes",
     description:
-      "Expert insights on Lagos real estate, property investment strategies, and exclusive project updates from Andreams Homes.",
+      "Expert insights on Nigerian real estate, property investment strategies, and exclusive project updates from Andreams Homes.",
     url: "/blog",
   },
   twitter: {
     card: "summary_large_image",
     title: "Blog — Real Estate News & Insights | Andreams Homes",
     description:
-      "Expert insights on Lagos real estate, property investment strategies, and exclusive project updates.",
+      "Expert insights on Nigerian real estate, property investment strategies, and exclusive project updates.",
   },
 };
 
