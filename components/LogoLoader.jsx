@@ -9,7 +9,7 @@ export default function LogoLoader({ fullscreen = false, message = "" }) {
         <div className="animate-logo-pulse">
           <Image
             src="/logo.png"
-            alt="Andream Homes"
+            alt="Andreams Homes"
             width={200}
             height={200}
             className="object-contain"
@@ -30,7 +30,7 @@ export default function LogoLoader({ fullscreen = false, message = "" }) {
       <div className="animate-logo-pulse">
         <Image
           src="/logo.png"
-          alt="Andream Homes"
+          alt="Andreams Homes"
           width={460}
           height={460}
           className="object-contain"

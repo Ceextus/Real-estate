@@ -353,9 +353,10 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
     setForm(prev => ({ ...prev, [e.target.name]: value }));
   };
 
-  // Generate slug from title
-  const generateSlug = (title) => {
-    return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  // Generate SEO-friendly slug from title + location
+  const generateSlug = (title, location = "") => {
+    const base = location ? `${title} ${location}` : title;
+    return base.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   };
 
   const handleSubmit = async (e) => {
@@ -427,7 +428,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
     const payload = {
       title: form.title,
-      slug: generateSlug(form.title),
+      slug: generateSlug(form.title, form.location),
       location: form.location,
       price: form.price,
       type: form.type,

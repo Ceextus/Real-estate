@@ -20,7 +20,7 @@ export default function BlogCard({ post }) {
       <div className="relative w-full h-56 sm:h-64 overflow-hidden">
         <Image
           src={post.image}
-          alt={post.title}
+          alt={`${post.title} — by ${post.author || "Andreams Homes"}`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -53,7 +53,9 @@ export default function BlogCard({ post }) {
             <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xs font-bold">
               {(post.author || "A")[0].toUpperCase()}
             </div>
-            <span className="text-white/50 text-xs font-medium">{post.author || "Andream Homes"}</span>
+            <span className="text-white/50 text-xs font-medium">
+              {post.author || "Andreams Homes"}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-accent text-sm font-bold group-hover:gap-3 transition-all">
             Read More

@@ -2,8 +2,22 @@ import { createClient } from "@/utils/supabase/server";
 import BlogCard from "@/components/BlogCard";
 
 export const metadata = {
-  title: "Blog — Andream Homes",
-  description: "Stay up to date with the latest news, insights, and updates from Andream Global Limited.",
+  title: "Blog — Real Estate News & Insights",
+  description:
+    "Stay up to date with the latest real estate news, market insights, property investment tips, and project updates from Andreams Homes Lagos.",
+  alternates: { canonical: "/blog" },
+  openGraph: {
+    title: "Blog — Real Estate News & Insights | Andreams Homes",
+    description:
+      "Expert insights on Lagos real estate, property investment strategies, and exclusive project updates from Andreams Homes.",
+    url: "/blog",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog — Real Estate News & Insights | Andreams Homes",
+    description:
+      "Expert insights on Lagos real estate, property investment strategies, and exclusive project updates.",
+  },
 };
 
 export default async function BlogPage() {
@@ -16,7 +30,6 @@ export default async function BlogPage() {
 
   return (
     <main className="min-h-screen bg-primary pt-16 pb-24 selection:bg-accent selection:text-white">
-
       {/* Header Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
         <div className="text-accent text-sm font-bold tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
@@ -28,7 +41,8 @@ export default async function BlogPage() {
           NEWS <span className="text-accent">Updates</span>
         </h1>
         <p className="max-w-2xl mx-auto text-white/70 text-lg">
-          Stay informed with the latest insights, project updates, and real estate news from Andream Global Limited.
+          Stay informed with the latest insights, project updates, and real
+          estate news from Andreams Global Limited.
         </p>
       </section>
 
@@ -47,7 +61,8 @@ export default async function BlogPage() {
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">No Posts Yet</h2>
             <p className="text-white/50 max-w-md mx-auto">
-              Check back soon for the latest news and updates from Andream Homes.
+              Check back soon for the latest news and updates from Andreams
+              Homes.
             </p>
           </div>
         )}

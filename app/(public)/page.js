@@ -78,7 +78,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="text-white/80 text-lg md:text-xl font-medium tracking-wide leading-relaxed max-w-2xl mx-auto drop-shadow-md"
             >
-              With Andream Homes, anyone can discover the perfect property. Just start with what you know. It&apos;s that easy.
+              With Andreams Homes, anyone can discover the perfect property. Just start with what you know. It&apos;s that easy.
             </motion.p>
               
               {/* Search Element matching the reference design */}
@@ -117,6 +117,8 @@ export default function Home() {
                   loop 
                   muted 
                   playsInline
+                  preload="none"
+                  poster="/images/logo.png"
                   className="absolute inset-0 w-full h-full object-cover"
                 >
                   <source src="/images/rs.mp4" type="video/mp4" />

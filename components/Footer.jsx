@@ -51,9 +51,9 @@ export default function Footer() {
         {/* Logo */}
         <div className="flex flex-col items-center gap-6 mb-8">
           <div className="relative h-16 w-56 lg:h-20 lg:w-64 mb-2">
-            <Image 
-              src="/logo.png" 
-              alt="Andream Homes Logo" 
+            <Image
+              src="/logo.png"
+              alt="Andreams Homes Logo"
               fill
               className="object-contain"
             />
@@ -91,16 +91,10 @@ export default function Footer() {
 
         {/* Bottom Navigation Links */}
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 sm:gap-x-8 md:gap-x-12 text-white/90 text-sm font-medium tracking-wide">
-          <Link
-            href="/"
-            className="hover:text-accent transition-colors"
-          >
+          <Link href="/" className="hover:text-accent transition-colors">
             HOME
           </Link>
-          <Link
-            href="/about"
-            className="hover:text-accent transition-colors"
-          >
+          <Link href="/about" className="hover:text-accent transition-colors">
             ABOUT
           </Link>
           <Link
@@ -109,28 +103,16 @@ export default function Footer() {
           >
             PROPERTIES
           </Link>
-          <Link
-            href="/blog"
-            className="hover:text-accent transition-colors"
-          >
+          <Link href="/blog" className="hover:text-accent transition-colors">
             BLOG
           </Link>
-          <Link
-            href="/gallery"
-            className="hover:text-accent transition-colors"
-          >
+          <Link href="/gallery" className="hover:text-accent transition-colors">
             GALLERY
           </Link>
-          <Link
-            href="/contact"
-            className="hover:text-accent transition-colors"
-          >
+          <Link href="/contact" className="hover:text-accent transition-colors">
             CONTACT
           </Link>
-          <Link
-            href="/admin"
-            className="hover:text-accent transition-colors"
-          >
+          <Link href="/admin" className="hover:text-accent transition-colors">
             ADMIN
           </Link>
         </div>

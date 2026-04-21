@@ -1,5 +1,5 @@
 -- ============================================
--- Site Settings table for Andream Homes
+-- Site Settings table for Andreams Homes
 -- Run this in Supabase Dashboard → SQL Editor
 -- ============================================
 
@@ -38,15 +38,15 @@ VALUES (
   1,
   '{
     "headline": "A Higher Quality of Living.",
-    "subheadline": "With Andream Homes, anyone can discover the perfect property. Just start with what you know. It''s that easy.",
-    "about_text": "At Andream Homes, we believe that true excellence is born at the intersection of relentless hard work and boundless creativity. Our dedication to pushing the boundaries of what is possible drives us to deliver projects that not only meet but exceed expectations."
+    "subheadline": "With Andreams Homes, anyone can discover the perfect property. Just start with what you know. It''s that easy.",
+    "about_text": "At Andreams Homes, we believe that true excellence is born at the intersection of relentless hard work and boundless creativity. Our dedication to pushing the boundaries of what is possible drives us to deliver projects that not only meet but exceed expectations."
   }'::jsonb,
   '{
     "phone1": "+234 812 345 6789",
     "phone2": "+234 809 876 5432",
-    "email_support": "info@andreamhomes.com",
-    "email_inquiry": "sales@andreamhomes.com",
-    "address": "12, Andream Homes Avenue, Off Admiralty Way, Lekki Phase 1, Lagos, Nigeria.",
+    "email_support": "info@Andreamshomes.com",
+    "email_inquiry": "sales@Andreamshomes.com",
+    "address": "12, Andreams Homes Avenue, Off Admiralty Way, Lekki Phase 1, Lagos, Nigeria.",
     "socials": {
       "facebook": "",
       "twitter": "",

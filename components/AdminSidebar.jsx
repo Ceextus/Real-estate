@@ -3,23 +3,27 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { 
-  HiOutlineHome, 
-  HiOutlineOfficeBuilding, 
-  HiOutlineUsers, 
-  HiOutlinePhotograph, 
-  HiOutlineChatAlt2, 
+import {
+  HiOutlineHome,
+  HiOutlineOfficeBuilding,
+  HiOutlineUsers,
+  HiOutlinePhotograph,
+  HiOutlineChatAlt2,
   HiOutlineCog,
   HiOutlineLogout,
   HiOutlineCalendar,
-  HiOutlineNewspaper
+  HiOutlineNewspaper,
 } from "react-icons/hi";
 import { GoHomeFill } from "react-icons/go";
 import { createClient } from "@/utils/supabase/client";
 
 const navLinks = [
   { name: "Dashboard", href: "/admin", icon: HiOutlineHome, exact: true },
-  { name: "Properties", href: "/admin/properties", icon: HiOutlineOfficeBuilding },
+  {
+    name: "Properties",
+    href: "/admin/properties",
+    icon: HiOutlineOfficeBuilding,
+  },
   { name: "Blog Posts", href: "/admin/blog", icon: HiOutlineNewspaper },
   { name: "Team Members", href: "/admin/team", icon: HiOutlineUsers },
   { name: "Gallery", href: "/admin/gallery", icon: HiOutlinePhotograph },
@@ -43,11 +47,15 @@ export default function AdminSidebar({ onMobileClick }) {
     <aside className="w-64 bg-primary text-white flex flex-col min-h-screen border-r border-white/10 shadow-xl z-50">
       {/* Sidebar Header / Logo */}
       <div className=" bg-white h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
-        <Link href="/admin" className="flex items-center" onClick={onMobileClick}>
+        <Link
+          href="/admin"
+          className="flex items-center"
+          onClick={onMobileClick}
+        >
           <div className="relative h-22 w-48 -ml-2 ">
-            <Image 
-              src="/logo.png" 
-              alt="Andream Homes Logo" 
+            <Image
+              src="/logo.png"
+              alt="Andreams Homes Logo"
               fill
               className="object-contain object-left"
               priority
@@ -55,7 +63,10 @@ export default function AdminSidebar({ onMobileClick }) {
           </div>
         </Link>
         {/* Mobile Close Button (only visible on mobile via parent styling usually, but we can manage here too) */}
-        <button onClick={onMobileClick} className="lg:hidden text-primary hover:text-primary/35 p-2 text-2xl">
+        <button
+          onClick={onMobileClick}
+          className="lg:hidden text-primary hover:text-primary/35 p-2 text-2xl"
+        >
           &times;
         </button>
       </div>
@@ -63,8 +74,8 @@ export default function AdminSidebar({ onMobileClick }) {
       {/* Navigation Links */}
       <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
         {navLinks.map((link) => {
-          const isActive = link.exact 
-            ? pathname === link.href 
+          const isActive = link.exact
+            ? pathname === link.href
             : pathname.startsWith(link.href);
 
           return (
@@ -78,7 +89,9 @@ export default function AdminSidebar({ onMobileClick }) {
                   : "text-white/60 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <link.icon className={`text-xl ${isActive ? "text-white" : "text-white/50"}`} />
+              <link.icon
+                className={`text-xl ${isActive ? "text-white" : "text-white/50"}`}
+              />
               {link.name}
             </Link>
           );
@@ -87,7 +100,7 @@ export default function AdminSidebar({ onMobileClick }) {
 
       {/* Footer / Logout */}
       <div className="p-4 border-t border-white/10 space-y-2 shrink-0">
-        <Link 
+        <Link
           href="/"
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:bg-white/5 hover:text-white transition-all duration-300"
         >

@@ -16,7 +16,7 @@ const navLinks = [
   { name: "Gallery", href: "/gallery" },
   { name: "Contact Us", href: "/contact" },
   { name: "Login", href: "/admin" },
-  
+
   // { name: "Rent", href: "/rent" },
 ];
 
@@ -62,10 +62,7 @@ export default function Navbar() {
             className={`flex justify-between items-center transition-all duration-500 ${scrolled ? "h-16" : "h-20"}`}
           >
             {/* Logo */}
-            <Link
-              href="/"
-              className="flex items-center group relative z-50"
-            >
+            <Link href="/" className="flex items-center group relative z-50">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -74,7 +71,7 @@ export default function Navbar() {
               >
                 <Image
                   src="/logo.png"
-                  alt="Andream Homes Logo"
+                  alt="Andreams Homes Logo"
                   fill
                   className="object-contain"
                   priority
@@ -171,7 +168,7 @@ export default function Navbar() {
                       <HiX className="h-5 w-5" />
                     ) : (
                       <HiMenu className="h-5 w-5" />
-                                                                          )}
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </motion.button>

@@ -24,11 +24,12 @@ export default function AboutClient({ teamMembers }) {
       >
         <motion.div
           style={{ y: yImage, opacity }}
-          className="absolute inset-0 z-0 origin-bottom">
+          className="absolute inset-0 z-0 origin-bottom"
+        >
           <div className="relative w-full h-full">
             <Image
               src="/images/team.jpg"
-              alt="Andream Homes Team"
+              alt="Andreams Homes Team"
               fill
               className="object-cover object-bottom"
               priority
@@ -43,7 +44,7 @@ export default function AboutClient({ teamMembers }) {
         />
       </section>
 
-      {/* The Andream Homes Way Section */}
+      {/* The Andreams Homes Way Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-20 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
           {/* Left Column: Title & Mission */}
@@ -53,33 +54,29 @@ export default function AboutClient({ teamMembers }) {
               About Us
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#111] mb-8 tracking-tight">
-              The Andream Homes Way
+              The Andreams Homes Way
             </h1>
 
             <div className="space-y-6 text-gray-600 text-lg leading-relaxed mb-10">
               <p>
                 A real estate development company focused on creating bespoke
                 luxury properties. We specialize in designing and building
-                smart, sustainable homes that reflect the aspirations of our
+                smart, sustainable homes and properties that reflect the aspirations of our
                 clients.
               </p>
               <p>
                 <strong>Our Mission</strong>
                 <br />
-                To consistently deliver exceptional real estate solutions by
-                leveraging technology, innovative design, and a commitment to
-                quality.
+                Our mission and values is to help people and businesses in Nigeria realize their dreams of owninig properties and create wealth.
               </p>
               <p>
                 <strong>Our Vision</strong>
                 <br />
-                To be the premier real estate developer in the region, known for
-                creating iconic spaces that inspire and elevate the standard of
-                living.
+                To deliver affordable and quality homes to all classes of people in Nigeria.
               </p>
             </div>
 
-            <Link 
+            <Link
               href="/contact"
               className="inline-block bg-accent text-white px-8 py-4 rounded-full font-bold tracking-wider hover:bg-primary transition-colors shadow-lg shadow-accent/20"
             >
@@ -93,30 +90,46 @@ export default function AboutClient({ teamMembers }) {
               <div className="text-center lg:text-left">
                 <div className="flex items-center justify-center lg:justify-start gap-4 mb-2">
                   <div className="text-accent text-4xl">👥</div>
-                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">50+</div>
+                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">
+                    50+
+                  </div>
                 </div>
-                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">Professionals</p>
+                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">
+                  Professionals
+                </p>
               </div>
               <div className="text-center lg:text-left">
                 <div className="flex items-center justify-center lg:justify-start gap-4 mb-2">
                   <div className="text-accent text-4xl">🏗️</div>
-                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">12+</div>
+                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">
+                    12+
+                  </div>
                 </div>
-                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">Projects</p>
+                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">
+                  Projects
+                </p>
               </div>
               <div className="text-center lg:text-left">
                 <div className="flex items-center justify-center lg:justify-start gap-4 mb-2">
                   <div className="text-accent text-4xl">🥇</div>
-                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">15+</div>
+                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">
+                    15+
+                  </div>
                 </div>
-                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">Awards</p>
+                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">
+                  Awards
+                </p>
               </div>
               <div className="text-center lg:text-left">
                 <div className="flex items-center justify-center lg:justify-start gap-4 mb-2">
                   <div className="text-accent text-4xl">🤝</div>
-                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">300+</div>
+                  <div className="text-4xl lg:text-5xl font-extrabold text-[#111]">
+                    300+
+                  </div>
                 </div>
-                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">Happy Clients</p>
+                <p className="text-gray-500 font-medium tracking-wide uppercase text-sm">
+                  Happy Clients
+                </p>
               </div>
             </div>
           </div>
@@ -131,7 +144,7 @@ export default function AboutClient({ teamMembers }) {
               The Core Team
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#111] tracking-tight">
-              Meet the Minds Behind Andream Homes
+              Meet the Minds Behind Andreams Homes
             </h2>
           </div>
 
@@ -191,7 +204,7 @@ export default function AboutClient({ teamMembers }) {
               Hard Work meets <br className="hidden lg:block" /> Creativity
             </h2>
             <p className="text-gray-600 leading-relaxed text-lg mb-8">
-              At Andream Homes, we believe that true excellence is born at the
+              At Andreams Homes, we believe that true excellence is born at the
               intersection of relentless hard work and boundless creativity. Our
               dedication to pushing the boundaries of what is possible drives us
               to deliver projects that not only meet but exceed expectations.

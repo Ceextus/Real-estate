@@ -1,4 +1,4 @@
-# Andream Homes Platform
+# Andreams Homes Platform
 
 A modern, high-performance real estate platform built with Next.js, React, Tailwind CSS, and Supabase. Designed to provide a premium user experience for clients browsing properties, booking inspections, and contacting agents, while offering an incredibly powerful, fully-featured Admin Dashboard for real estate administrators.
 
@@ -60,7 +60,7 @@ Follow these steps to run the platform locally on your machine.
 ### 1. Clone the Repository
 ```bash
 git clone <your-repo-url>
-cd andream-homes
+cd Andreams-homes
 ```
 
 ### 2. Install Dependencies
@@ -102,11 +102,11 @@ yarn dev
 ---
 
 ## 🎨 Design Philosophy
-Andream Homes prioritizes visual excellence.
+Andreams Homes prioritizes visual excellence.
 - **Glassmorphic Design:** The admin panel utilizes extensive blur effects (`backdrop-blur-sm`, `bg-white/90`), subtle background decorations, and modern clean lines to look ultra-premium.
 - **Responsiveness First:** Every single interaction, grid, and navigation menu gracefully wraps from giant 4K monitors down to small iPhones, including precise touch-targets specifically designed for thumbs.
 - **Immediate Feedback:** Fast component loading backed by framer-motion micro-animations and global toast contexts ensures the user never has to guess if an action was successful.
 
 ---
 
-*Built for Andream Homes Real Estate.*
+*Built for Andreams Homes Real Estate.*

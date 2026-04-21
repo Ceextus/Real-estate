@@ -141,6 +141,8 @@ export default function AboutUs() {
             loop
             muted
             playsInline
+            preload="none"
+            poster="/images/logo.png"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
           >
             <source

@@ -41,7 +41,7 @@ export default function EstateFeatures() {
       {/* Decorative Top Curve (Inverted Arch) */}
       <div
         className="absolute top-0 left-0 w-full h-[150px] bg-primary rounded-b-[50%] md:rounded-b-[100%] z-0"
-        style={{ transform: "scaleX(1.1) translateY(-50%)" }}  
+        style={{ transform: "scaleX(1.1) translateY(-50%)" }}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-10">
@@ -98,9 +98,7 @@ export default function EstateFeatures() {
               &quot;We will never stop delivering the highest quality lands and
               properties with secure titles.&quot;
             </p>
-            <p className="text-gray-400 font-medium">
-              - Andream Homes Team.
-            </p>
+            <p className="text-gray-400 font-medium">- Andreams Homes Team.</p>
           </div>
         </motion.div>
       </div>

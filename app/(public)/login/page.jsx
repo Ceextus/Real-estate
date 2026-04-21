@@ -63,7 +63,13 @@ export default function LoginPage() {
     <div className="w-full flex-col lg:flex-row flex min-h-[calc(100vh-80px)] bg-primary selection:bg-accent selection:text-white font-sans">
       {/* Left Side - Image & Overlay */}
       <div className="hidden ml-10 lg:flex w-1/2 relative bg-primary items-center justify-center p-8">
-        <div className="relative w-full h-[90%] overflow-hidden" style={{ clipPath: 'polygon(0% 15%, 15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%)' }}>
+        <div
+          className="relative w-full h-[90%] overflow-hidden"
+          style={{
+            clipPath:
+              "polygon(0% 15%, 15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%)",
+          }}
+        >
           <Image
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80"
             alt="Modern Architecture"
@@ -78,9 +84,9 @@ export default function LoginPage() {
           <div className="absolute top-10 left-10 z-10 lg:left-16 lg:top-20">
             <Link href="/">
               <div className="relative h-16 w-56 lg:h-20 lg:w-64">
-                <Image 
-                  src="/logo.png" 
-                  alt="Andream Homes Logo" 
+                <Image
+                  src="/logo.png"
+                  alt="Andreams Homes Logo"
                   fill
                   className="object-contain object-left drop-shadow-md brightness-0 invert" // Keeping it white if background is dark, remove classes if original is fine
                   priority
@@ -108,8 +114,6 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-
-
       </div>
 
       {/* Right Side - Form */}
@@ -118,7 +122,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="mb-8">
             <h2 className="text-[2rem] font-bold text-white mb-2 tracking-tight">
-              Welcome Back to Andream Homes!
+              Welcome Back to Andreams Homes!
             </h2>
             <p className="text-white/60 text-[15px]">Sign in to your account</p>
           </div>

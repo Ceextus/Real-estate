@@ -1,5 +1,5 @@
 -- ============================================
--- Gallery table for Andream Homes
+-- Gallery table for Andreams Homes
 -- Run this in Supabase Dashboard → SQL Editor
 -- ============================================
 

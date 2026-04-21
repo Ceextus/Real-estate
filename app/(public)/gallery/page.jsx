@@ -2,8 +2,22 @@ import { createClient } from "@/utils/supabase/server";
 import GalleryClient from "./GalleryClient";
 
 export const metadata = {
-  title: "Gallery | Andream Homes",
-  description: "Explore our stunning collection of luxury properties — exteriors, interiors, and premium amenities.",
+  title: "Gallery — Luxury Property Photos & Interiors",
+  description:
+    "Explore stunning photos of Andreams Homes luxury properties — exteriors, interiors, smart home features, and premium amenities across Lagos, Nigeria.",
+  alternates: { canonical: "/gallery" },
+  openGraph: {
+    title: "Gallery — Luxury Property Photos | Andreams Homes",
+    description:
+      "Browse our curated collection of luxury property images — world-class interiors, exteriors, and premium amenities.",
+    url: "/gallery",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gallery — Luxury Property Photos | Andreams Homes",
+    description:
+      "Browse our curated collection of luxury property images across Lagos, Nigeria.",
+  },
 };
 
 export default async function GalleryPage() {

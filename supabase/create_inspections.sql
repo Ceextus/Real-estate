@@ -1,5 +1,5 @@
 -- ============================================
--- Inspections table for Andream Homes
+-- Inspections table for Andreams Homes
 -- Run this in Supabase Dashboard → SQL Editor
 -- ============================================
 

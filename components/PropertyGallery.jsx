@@ -146,7 +146,15 @@ export default function PropertyGallery({ images, title }) {
                   idx === currentIndex ? "border-accent scale-110" : "border-transparent opacity-50 hover:opacity-80"
                 }`}
               >
-                <img src={url} alt="" className="w-full h-full object-cover" />
+              <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                <Image
+                  src={url}
+                  alt={`${title} — thumbnail ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                />
+              </div>
               </div>
             ))}
           </div>
