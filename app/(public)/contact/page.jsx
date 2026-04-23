@@ -122,35 +122,46 @@ export default async function ContactPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
             {/* Left Column: Contact Information */}
-            <div className="lg:col-span-5 flex flex-col justify-center space-y-10 lg:pr-10">
-              <div className="bg-white/5 p-8 rounded-3xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-colors backdrop-blur-sm">
-                <div className="w-12 h-12 bg-accent/20 rounded-2xl flex items-center justify-center mb-6 text-accent text-2xl border border-accent/20">
-                  <HiOutlineLocationMarker />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-3">
-                  Head Office
+            <div className="lg:col-span-5 flex flex-col justify-center space-y-8 lg:pr-10">
+              <div>
+                <h2 className="text-3xl font-bold text-white mb-4">
+                  Get in Touch
                 </h2>
-                <address className="text-white/70 leading-relaxed font-medium not-italic">
-                  {addressParts.map((part, i) => (
-                    <span key={i}>
-                      {part.trim()}
-                      {i < addressParts.length - 1 && (
-                        <>
-                          ,<br />
-                        </>
-                      )}
-                    </span>
-                  ))}
-                </address>
+                <p className="text-white/70 text-lg">
+                  Reach out to us directly through any of the channels below.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-colors backdrop-blur-sm">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-4 text-white text-xl">
-                    <HiOutlinePhone />
-                  </div>
-                  <h3 className="font-bold text-white mb-2">Call Us</h3>
-                  <div className="text-white/70 text-sm font-medium space-y-1">
+              <div className="flex gap-5 items-start">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-accent text-2xl flex-shrink-0 border border-white/10">
+                  <HiOutlineLocationMarker />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-2">
+                    Head Office
+                  </h3>
+                  <address className="text-white/70 leading-relaxed not-italic">
+                    {addressParts.map((part, i) => (
+                      <span key={i}>
+                        {part.trim()}
+                        {i < addressParts.length - 1 && (
+                          <>
+                            ,<br />
+                          </>
+                        )}
+                      </span>
+                    ))}
+                  </address>
+                </div>
+              </div>
+
+              <div className="flex gap-5 items-start">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-accent text-xl flex-shrink-0 border border-white/10">
+                  <HiOutlinePhone />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-2">Call Us</h3>
+                  <div className="text-white/70 space-y-1">
                     <a
                       href={`tel:${phone1.replace(/\s/g, "")}`}
                       className="block hover:text-accent transition-colors"
@@ -167,23 +178,27 @@ export default async function ContactPage() {
                     )}
                   </div>
                 </div>
+              </div>
 
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-colors backdrop-blur-sm">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-4 text-white text-xl">
-                    <HiOutlineMail />
-                  </div>
-                  <h3 className="font-bold text-white mb-2">Email Us</h3>
-                  <div className="text-white/70 text-sm font-medium space-y-1">
+              <div className="flex gap-5 items-start">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-accent text-xl flex-shrink-0 border border-white/10">
+                  <HiOutlineMail />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-bold text-white mb-2">Email Us</h3>
+                  <div className="text-white/70 space-y-1 overflow-hidden">
                     <a
                       href={`mailto:${emailSupport}`}
-                      className="block hover:text-accent transition-colors"
+                      className="block hover:text-accent transition-colors truncate"
+                      title={emailSupport}
                     >
                       {emailSupport}
                     </a>
                     {emailInquiry && emailInquiry !== emailSupport && (
                       <a
                         href={`mailto:${emailInquiry}`}
-                        className="block hover:text-accent transition-colors"
+                        className="block hover:text-accent transition-colors truncate"
+                        title={emailInquiry}
                       >
                         {emailInquiry}
                       </a>
@@ -192,14 +207,14 @@ export default async function ContactPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-6 bg-black/40 border border-white/10 text-white rounded-3xl shadow-lg backdrop-blur-sm">
-                <div className="text-3xl text-accent">
+              <div className="flex gap-5 items-start">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-accent text-xl flex-shrink-0 border border-white/10">
                   <BsClock />
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">Business Hours</h3>
-                  <p className="text-white/80 text-sm">
-                    Monday - Friday: 8:00 AM - 6:00 PM
+                  <h3 className="text-lg font-bold text-white mb-2">Business Hours</h3>
+                  <p className="text-white/70">
+                    Mon - Fri: 8:00 AM - 6:00 PM
                     <br />
                     Saturday: 9:00 AM - 2:00 PM
                   </p>

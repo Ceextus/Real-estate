@@ -55,9 +55,9 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="bg-white/5 backdrop-blur-md rounded-4xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-white/10 relative overflow-hidden">
+    <div className="bg-white/5 rounded-4xl p-8 md:p-12 border border-white/10 relative overflow-hidden">
       {/* Decorative top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-accent" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-accent" />
       
       <div className="mb-10 text-center">
         <h3 className="text-3xl font-bold text-white mb-3 tracking-tight">Send us a Message</h3>
