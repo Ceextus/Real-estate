@@ -363,7 +363,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
   const clearImage = () => {
     setImageFile(null);
-    setImagePreview(isEditing ? property?.image : null);
+    setImagePreview(null);
   };
 
   const handleChange = (e) => {

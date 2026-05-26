@@ -302,7 +302,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
 
   const clearImage = () => {
     setImageFile(null);
-    setImagePreview(isEditing ? member?.image : null);
+    setImagePreview(null);
   };
 
   const handleChange = (e) => {
@@ -336,7 +336,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
         .from("property-images")
         .getPublicUrl(filePath);
       imageUrl = urlData.publicUrl;
-    } else if (!isEditing && !imagePreview) {
+    } else if (!imagePreview) {
       setError("Please upload a photo.");
       setSaving(false);
       return;
@@ -391,19 +391,36 @@ function TeamForm({ member = null, onSuccess, onClose }) {
           <span className="text-gray-400 font-normal">(max 10MB)</span>
         </label>
         {imagePreview ? (
-          <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border border-gray-200 bg-gray-50">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-full h-full object-cover"
-            />
-            <button
-              type="button"
-              onClick={clearImage}
-              className="absolute top-1 right-1 bg-white rounded-full shadow-md p-1 hover:bg-red-50 transition-colors"
+          <div className="flex flex-col items-center gap-3">
+            <div
+              className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border border-gray-200 bg-gray-50 cursor-pointer group"
+              onClick={() => document.getElementById("team-image-upload").click()}
             >
-              <BsXCircleFill className="text-red-500 text-sm" />
-            </button>
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-full object-cover transition-opacity group-hover:opacity-60"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+                <BsCloudUpload className="text-2xl text-white" />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => document.getElementById("team-image-upload").click()}
+                className="text-xs font-medium text-accent hover:text-accent/80 transition-colors"
+              >
+                Change Photo
+              </button>
+              <button
+                type="button"
+                onClick={clearImage}
+                className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
+              >
+                <BsXCircleFill className="text-[10px]" /> Remove
+              </button>
+            </div>
           </div>
         ) : (
           <div
