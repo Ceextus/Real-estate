@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BsPlusLg, BsSearch, BsThreeDotsVertical, BsPencilSquare, BsTrash, BsCloudUpload, BsXCircleFill } from "react-icons/bs";
+import { BsPlusLg, BsSearch, BsThreeDotsVertical, BsPencilSquare, BsTrash, BsCloudUpload, BsXCircleFill, BsStars } from "react-icons/bs";
 import Image from "next/image";
 import AdminModal from "@/components/admin/AdminModal";
 import { createClient } from "@/utils/supabase/client";
@@ -240,6 +240,21 @@ export default function AdminProperties() {
   );
 }
 
+// Standard estate facilities — shown as checkboxes and used to map flier-parsed facilities.
+const STANDARD_FACILITIES = [
+  "Water (Bore Holes)",
+  "Electricity (PHCN)",
+  "Access Road / Police Post",
+  "Clinic / School",
+  "Religious Centres",
+  "Corner Shops / Malls",
+  "Sport Facilities",
+  "Administrative Office",
+  "Gas Station",
+  "ATM Galaxy",
+  "Estate Transports",
+];
+
 // Reusable Form Component for Add/Edit — now wired to Supabase
 function PropertyForm({ property = null, onSuccess, onClose }) {
   const isEditing = !!property;
@@ -248,6 +263,12 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(property?.image || null);
   const toast = useToast();
+
+  // Flier auto-fill (Gemini) state
+  const [parsing, setParsing] = useState(false);
+  const [parseError, setParseError] = useState("");
+  const [parseNote, setParseNote] = useState("");
+  const [autoFilled, setAutoFilled] = useState([]); // field keys filled from the flier
 
   const [form, setForm] = useState({
     title: property?.title || "",
@@ -374,12 +395,105 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       if (match) value = match[1];
     }
     setForm(prev => ({ ...prev, [e.target.name]: value }));
+    // Once the user edits a field, drop its "auto-filled" badge.
+    setAutoFilled(prev => prev.filter(k => k !== e.target.name));
   };
 
   // Generate SEO-friendly slug from title + location
   const generateSlug = (title, location = "") => {
     const base = location ? `${title} ${location}` : title;
     return base.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  };
+
+  // ─── Auto-fill from flier (Gemini) ───
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  // Merge parsed data into the form without clobbering anything the flier didn't mention.
+  const applyParsed = (d) => {
+    const has = (v) => (Array.isArray(v) ? v.length > 0 : !!v);
+    setForm((prev) => ({
+      ...prev,
+      title: d.title || prev.title,
+      location: d.location || prev.location,
+      price: d.price || prev.price,
+      type: d.type || prev.type,
+      beds: d.beds || prev.beds,
+      status: d.status || prev.status,
+      property_type: d.property_type || prev.property_type,
+      size: d.size || prev.size,
+      description: d.description || prev.description,
+      developer: d.developer || prev.developer,
+      supported_by: d.supported_by || prev.supported_by,
+      registration_fee: d.registration_fee || prev.registration_fee,
+      features: has(d.features) ? d.features.join("\n") : prev.features,
+      payment_options: has(d.payment_options) ? d.payment_options.join("\n") : prev.payment_options,
+      facilities: has(d.facilities)
+        ? Array.from(new Set([...prev.facilities, ...d.facilities.filter((f) => STANDARD_FACILITIES.includes(f))]))
+        : prev.facilities,
+    }));
+
+    if (has(d.plot_types)) {
+      setPlotTypes(d.plot_types.map((p) => ({ type: p.type || "", size: p.size || "", units: p.units || "", price: p.price || "" })));
+    }
+    if (has(d.service_plots)) {
+      setServicePlots(d.service_plots.map((s) => ({ size: s.size || "", house_type: s.house_type || "", price: s.price || "" })));
+    }
+    if (has(d.bank_details)) {
+      setBankDetails(d.bank_details.map((b) => ({ bank: b.bank || "", account_name: b.account_name || "", account_no: b.account_no || "" })));
+    }
+    // Auto-open the collapsible section if the flier filled any of its fields.
+    if (has(d.plot_types) || has(d.service_plots) || has(d.bank_details) || has(d.payment_options) || d.developer || d.supported_by || d.registration_fee) {
+      setShowProjectDetails(true);
+    }
+
+    return Object.entries(d).filter(([, v]) => has(v)).map(([k]) => k);
+  };
+
+  const handleFlierUpload = async (file) => {
+    if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      setParseError("Flier image must be under 10MB.");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setParseError("Please select an image file.");
+      return;
+    }
+    setParseError("");
+    setParseNote("");
+    // When adding, the flier doubles as the main listing image. When editing,
+    // leave the existing image untouched and only parse the text.
+    if (!isEditing) handleImageSelect(file);
+    setParsing(true);
+    try {
+      const base64 = await fileToBase64(file);
+      const res = await fetch("/api/parse-flier", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64, mimeType: file.type }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Parsing failed.");
+      const filled = applyParsed(json.data || {});
+      setAutoFilled(filled);
+      if (filled.length === 0) {
+        setParseNote("No details could be read from this flier. Fill the form in manually.");
+      } else {
+        setParseNote(`Auto-filled ${filled.length} field${filled.length === 1 ? "" : "s"} from the flier. Please review everything before saving.`);
+        toast.success("Flier parsed — review the details below.");
+      }
+    } catch (err) {
+      setParseError(err.message);
+      toast.error(`Could not parse flier: ${err.message}`);
+    } finally {
+      setParsing(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -492,6 +606,14 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
     }
   };
 
+  // Small "auto-filled" tag shown next to fields populated from a flier.
+  const AutoBadge = ({ field }) =>
+    autoFilled.includes(field) ? (
+      <span className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full align-middle">
+        <BsStars className="text-[9px]" /> auto-filled
+      </span>
+    ) : null;
+
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       
@@ -499,8 +621,58 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{error}</div>
       )}
 
+      {/* ─── Auto-fill from flier (AI) ─── */}
+      <div className="rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5 p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <BsStars className="text-accent text-lg" />
+            <span className="text-sm font-bold text-gray-800">Auto-fill from a flier</span>
+            <span className="text-xs text-gray-500">
+              {isEditing ? "Upload a poster to re-read the details." : "Upload a poster and we'll read the details for you."}
+            </span>
+          </div>
+
+          <div
+            onDrop={(e) => { e.preventDefault(); if (!parsing) handleFlierUpload(e.dataTransfer?.files?.[0]); }}
+            onDragOver={(e) => e.preventDefault()}
+            onClick={() => { if (!parsing) document.getElementById("flier-upload").click(); }}
+            className={`w-full py-8 border-2 border-dashed rounded-xl flex flex-col items-center gap-2 transition-colors ${
+              parsing ? "border-accent bg-accent/5 cursor-wait" : "border-accent/40 bg-white/60 hover:border-accent hover:bg-accent/5 cursor-pointer"
+            }`}
+          >
+            {parsing ? (
+              <>
+                <BsStars className="text-2xl text-accent animate-pulse" />
+                <p className="text-sm text-accent font-semibold">Reading the flier…</p>
+                <p className="text-xs text-gray-500">This usually takes a few seconds</p>
+              </>
+            ) : (
+              <>
+                <BsCloudUpload className="text-2xl text-gray-400" />
+                <p className="text-sm text-gray-600 font-medium">Click or drag a flier image here</p>
+                <p className="text-xs text-gray-400">
+                  {isEditing ? "Only the text is read — your existing images stay." : "The flier also becomes the main image — you can change it below"}
+                </p>
+              </>
+            )}
+          </div>
+          <input
+            id="flier-upload"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={(e) => handleFlierUpload(e.target.files?.[0])}
+          />
+
+          {parseNote && (
+            <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">{parseNote}</div>
+          )}
+          {parseError && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{parseError}</div>
+          )}
+      </div>
+
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 block">Property Title</label>
+        <label className="text-sm font-semibold text-gray-700 block">Property Title <AutoBadge field="title" /></label>
         <input 
           type="text" name="title" value={form.title} onChange={handleChange}
           placeholder="e.g. Luxury 5-Bedroom Detached Duplex" required
@@ -510,7 +682,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Location</label>
+          <label className="text-sm font-semibold text-gray-700 block">Location <AutoBadge field="location" /></label>
           <input 
             type="text" name="location" value={form.location} onChange={handleChange}
             placeholder="e.g. Karu, Abuja FCT" required
@@ -518,7 +690,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Price</label>
+          <label className="text-sm font-semibold text-gray-700 block">Price <AutoBadge field="price" /></label>
           <input 
             type="text" name="price" value={form.price} onChange={handleChange}
             placeholder="e.g. ₦ 350,000,000" required
@@ -529,7 +701,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Type (e.g. 5 Bed Detached)</label>
+          <label className="text-sm font-semibold text-gray-700 block">Type (e.g. 5 Bed Detached) <AutoBadge field="type" /></label>
           <input 
             type="text" name="type" value={form.type} onChange={handleChange}
             placeholder="e.g. 4 Bed Terraced" required
@@ -537,7 +709,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Beds</label>
+          <label className="text-sm font-semibold text-gray-700 block">Beds <AutoBadge field="beds" /></label>
           <input 
             type="text" name="beds" value={form.beds} onChange={handleChange}
             placeholder="e.g. 4 Bedroom Penthouse Suite"
@@ -548,7 +720,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Property Category</label>
+          <label className="text-sm font-semibold text-gray-700 block">Property Category <AutoBadge field="property_type" /></label>
           <select 
             name="property_type" value={form.property_type} onChange={handleChange}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
@@ -559,7 +731,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           </select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Status</label>
+          <label className="text-sm font-semibold text-gray-700 block">Status <AutoBadge field="status" /></label>
           <input 
             type="text" name="status" value={form.status} onChange={handleChange}
             placeholder="e.g. Fully Finished, Off-Plan"
@@ -570,7 +742,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 block">Size</label>
+          <label className="text-sm font-semibold text-gray-700 block">Size <AutoBadge field="size" /></label>
           <input 
             type="text" name="size" value={form.size} onChange={handleChange}
             placeholder="e.g. 450 sqm"
@@ -677,7 +849,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 block">Description</label>
+        <label className="text-sm font-semibold text-gray-700 block">Description <AutoBadge field="description" /></label>
         <textarea 
           name="description" value={form.description} onChange={handleChange}
           rows={3} placeholder="Detailed description of the property..."
@@ -686,7 +858,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 block">Features (one per line)</label>
+        <label className="text-sm font-semibold text-gray-700 block">Features (one per line) <AutoBadge field="features" /></label>
         <textarea 
           name="features" value={form.features} onChange={handleChange}
           rows={4} placeholder="Smart Home-Ready Design&#10;24/7 Security&#10;Swimming Pool"
@@ -729,7 +901,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
             {/* Developer & Supported By */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700 block">Developer / Company</label>
+                <label className="text-sm font-semibold text-gray-700 block">Developer / Company <AutoBadge field="developer" /></label>
                 <input
                   type="text" name="developer" value={form.developer} onChange={handleChange}
                   placeholder="e.g. Andreams Global Properties Ltd"
@@ -737,7 +909,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700 block">Supported By</label>
+                <label className="text-sm font-semibold text-gray-700 block">Supported By <AutoBadge field="supported_by" /></label>
                 <input
                   type="text" name="supported_by" value={form.supported_by} onChange={handleChange}
                   placeholder="e.g. Brook Fields Company"
@@ -748,7 +920,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
             {/* Registration Fee */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700 block">Registration Fee</label>
+              <label className="text-sm font-semibold text-gray-700 block">Registration Fee <AutoBadge field="registration_fee" /></label>
               <input
                 type="text" name="registration_fee" value={form.registration_fee} onChange={handleChange}
                 placeholder="e.g. ₦10,000"
@@ -758,7 +930,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
             {/* Plot Types (Dynamic Rows) */}
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-gray-700 block">Plot Types & Pricing</label>
+              <label className="text-sm font-semibold text-gray-700 block">Plot Types & Pricing <AutoBadge field="plot_types" /></label>
               {plotTypes.map((plot, idx) => (
                 <div key={idx} className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
                   <input
@@ -797,7 +969,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
             {/* Service Plots (Dynamic Rows) */}
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-gray-700 block">Service Plots</label>
+              <label className="text-sm font-semibold text-gray-700 block">Service Plots <AutoBadge field="service_plots" /></label>
               {servicePlots.map((sp, idx) => (
                 <div key={idx} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
                   <input
@@ -831,7 +1003,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
             {/* Payment Options */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700 block">Payment Options (one per line)</label>
+              <label className="text-sm font-semibold text-gray-700 block">Payment Options (one per line) <AutoBadge field="payment_options" /></label>
               <textarea
                 name="payment_options" value={form.payment_options} onChange={handleChange}
                 rows={4} placeholder={"Outright Full Payment (5% discount)\nDown Payment: 40%\nInstallmental: 50%, 30% & 20% within 1 year\nRegistration Fee: ₦10,000"}
@@ -841,7 +1013,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
             {/* Bank Details (Dynamic Rows) */}
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-gray-700 block">Bank Details</label>
+              <label className="text-sm font-semibold text-gray-700 block">Bank Details <AutoBadge field="bank_details" /></label>
               {bankDetails.map((bd, idx) => (
                 <div key={idx} className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
                   <input
@@ -875,21 +1047,9 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
 
             {/* Facilities Checkboxes */}
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-gray-700 block">Standard Facilities</label>
+              <label className="text-sm font-semibold text-gray-700 block">Standard Facilities <AutoBadge field="facilities" /></label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[
-                  "Water (Bore Holes)",
-                  "Electricity (PHCN)",
-                  "Access Road / Police Post",
-                  "Clinic / School",
-                  "Religious Centres",
-                  "Corner Shops / Malls",
-                  "Sport Facilities",
-                  "Administrative Office",
-                  "Gas Station",
-                  "ATM Galaxy",
-                  "Estate Transports",
-                ].map((facility) => (
+                {STANDARD_FACILITIES.map((facility) => (
                   <label key={facility} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                     <input
                       type="checkbox"
