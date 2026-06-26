@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { BsPlusLg, BsSearch, BsThreeDotsVertical, BsPencilSquare, BsTrash, BsCloudUpload, BsXCircleFill, BsStars } from "react-icons/bs";
 import Image from "next/image";
@@ -269,6 +269,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
   const [parseError, setParseError] = useState("");
   const [parseNote, setParseNote] = useState("");
   const [autoFilled, setAutoFilled] = useState([]); // field keys filled from the flier
+  const [generatingDesc, setGeneratingDesc] = useState(false);
 
   const [form, setForm] = useState({
     title: property?.title || "",
@@ -496,6 +497,71 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
     }
   };
 
+  // Allow pasting a copied image / screenshot (Ctrl+V) anywhere in the form to parse it.
+  const flierUploadRef = useRef(handleFlierUpload);
+  flierUploadRef.current = handleFlierUpload;
+  useEffect(() => {
+    const onPaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type?.startsWith("image/")) {
+          let file = item.getAsFile();
+          if (file) {
+            // Pasted images sometimes have no filename — give one so the upload path is valid.
+            if (!file.name) {
+              const ext = file.type.split("/")[1] || "png";
+              file = new File([file], `pasted-flier.${ext}`, { type: file.type });
+            }
+            e.preventDefault();
+            flierUploadRef.current(file);
+            return;
+          }
+        }
+      }
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, []);
+
+  // Write a marketing description from the details already in the form.
+  const generateDescription = async () => {
+    setError("");
+    setGeneratingDesc(true);
+    try {
+      const property = {
+        title: form.title,
+        location: form.location,
+        price: form.price,
+        type: form.type,
+        beds: form.beds,
+        status: form.status,
+        property_type: form.property_type,
+        size: form.size,
+        developer: form.developer,
+        features: form.features.split("\n").filter((f) => f.trim() !== ""),
+        facilities: form.facilities,
+        payment_options: form.payment_options.split("\n").filter((f) => f.trim() !== ""),
+        plot_types: plotTypes.filter((p) => p.type || p.size || p.price),
+      };
+      const res = await fetch("/api/generate-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ property }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Could not generate description.");
+      setForm((prev) => ({ ...prev, description: json.description }));
+      setAutoFilled((prev) => (prev.includes("description") ? prev : [...prev, "description"]));
+      toast.success("Description generated — feel free to tweak it.");
+    } catch (err) {
+      setError(err.message);
+      toast.error(err.message);
+    } finally {
+      setGeneratingDesc(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -648,7 +714,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
             ) : (
               <>
                 <BsCloudUpload className="text-2xl text-gray-400" />
-                <p className="text-sm text-gray-600 font-medium">Click or drag a flier image here</p>
+                <p className="text-sm text-gray-600 font-medium">Click, drag, or paste (Ctrl+V) a flier image here</p>
                 <p className="text-xs text-gray-400">
                   {isEditing ? "Only the text is read — your existing images stay." : "The flier also becomes the main image — you can change it below"}
                 </p>
@@ -849,8 +915,19 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 block">Description <AutoBadge field="description" /></label>
-        <textarea 
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <label className="text-sm font-semibold text-gray-700 block">Description <AutoBadge field="description" /></label>
+          <button
+            type="button"
+            onClick={generateDescription}
+            disabled={generatingDesc}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent bg-accent/10 hover:bg-accent/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-wait"
+          >
+            <BsStars className={generatingDesc ? "animate-pulse" : ""} />
+            {generatingDesc ? "Writing…" : "Generate with AI"}
+          </button>
+        </div>
+        <textarea
           name="description" value={form.description} onChange={handleChange}
           rows={3} placeholder="Detailed description of the property..."
           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
