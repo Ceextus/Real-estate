@@ -32,6 +32,10 @@ export default function FloatingActionButton() {
 
   if (isAdmin) return null;
 
+  // On a property page, jump to its booking form instead of the listings.
+  const onDetail = /^\/properties\/[^/]+/.test(pathname ?? "");
+  const href = onDetail ? "#book" : "/properties";
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -47,7 +51,7 @@ export default function FloatingActionButton() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             <Link
-              href="/properties"
+              href={href}
               className="group flex items-center gap-2.5 bg-primary ring-1 ring-white/15 py-3 pl-3 pr-4 text-white shadow-[0_14px_30px_-12px_rgba(11,29,58,0.55)] transition-colors duration-300 hover:bg-primary-light"
             >
               <span className="flex h-7 w-7 items-center justify-center bg-accent">

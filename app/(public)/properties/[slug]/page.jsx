@@ -3,13 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createStaticClient } from "@/utils/supabase/static";
-import {
-  HiOutlineLocationMarker,
-  HiOutlineCheck,
-  HiArrowLeft,
-} from "react-icons/hi";
+import { HiOutlineLocationMarker, HiOutlineCheck, HiArrowLeft } from "react-icons/hi";
+import { BsArrowUpRight, BsTelephone } from "react-icons/bs";
 import BookInspectionForm from "@/components/BookInspectionForm";
-import PropertyGallery from "@/components/PropertyGallery";
+import PropertyMedia from "@/components/properties/PropertyMedia";
+import PropertyGrid from "@/components/properties/PropertyGrid";
+import { Reveal, WordReveal } from "@/components/motion/Reveal";
+import { tidy, sentence, formatPrice, formatBeds, displayPhone, telPhone } from "@/lib/format";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.andreamshomes.com";
@@ -81,6 +81,68 @@ export async function generateMetadata({ params }) {
   };
 }
 
+// Accepts watch, youtu.be and embed links; returns an embeddable URL or null.
+function youTubeEmbed(url) {
+  if (!url) return null;
+  const id =
+    url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/)?.[1] ||
+    url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)?.[1] ||
+    url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/)?.[1];
+  return id ? `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1` : null;
+}
+
+const pad = (n) => String(n).padStart(2, "0");
+const filled = (rows, key) => (rows || []).filter((r) => r?.[key]);
+
+function PriceTable({ columns, rows }) {
+  return (
+    <div className="overflow-x-auto border border-line bg-white">
+      <table className="w-full text-left text-sm">
+        <thead>
+          <tr className="border-b border-line text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+            {columns.map((c) => (
+              <th key={c.key} className={`px-5 py-3.5 font-normal whitespace-nowrap ${c.price ? "text-right" : ""}`}>
+                {c.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} className="border-b border-line last:border-0 transition-colors hover:bg-canvas">
+              {columns.map((c) => (
+                <td
+                  key={c.key}
+                  className={`px-5 py-4 whitespace-nowrap ${
+                    c.price ? "text-right font-semibold text-primary whitespace-nowrap" : c.first ? "text-primary" : "text-ink-soft"
+                  }`}
+                >
+                  {(c.price ? formatPrice(row[c.key]) : row[c.key]) || "—"}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CheckList({ items, cols = 2 }) {
+  return (
+    <ul className={`grid grid-cols-1 ${cols === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"} gap-px bg-line border border-line`}>
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3 bg-white px-5 py-4 text-sm text-primary">
+          <HiOutlineCheck className="mt-0.5 shrink-0 text-accent" />
+          {item}
+        </li>
+      ))}
+      {/* Blank cell keeps the last row white when the count is odd */}
+      {items.length % 2 === 1 && <li aria-hidden className="hidden sm:block bg-white" />}
+    </ul>
+  );
+}
+
 // ─── Page Component ─────────────────────────────────────────────────────────
 export default async function PropertyDetails({ params }) {
   const { slug } = await params;
@@ -96,17 +158,22 @@ export default async function PropertyDetails({ params }) {
     notFound();
   }
 
-  // ─── Fetch Related Properties (same location, different slug) ────────────
-  const { data: relatedProperties } = await supabase
-    .from("properties")
-    .select("slug, title, image, location, price, type")
-    .neq("slug", slug)
-    .limit(3);
+  // Similar listings: same property type first, then the newest others.
+  const [{ data: others }, { data: settings }] = await Promise.all([
+    supabase
+      .from("properties")
+      .select("slug, title, image, location, price, type, property_type, status, beds, size, created_at")
+      .neq("slug", slug)
+      .order("created_at", { ascending: false }),
+    supabase.from("site_settings").select("contact").eq("id", 1).single(),
+  ]);
+  const related = [...(others || [])]
+    .sort((a, b) => (b.property_type === property.property_type) - (a.property_type === property.property_type))
+    .slice(0, 3);
+  const phone = settings?.contact?.phone1;
 
   // ─── JSON-LD: Product + Offer + RealEstateListing ────────────────────────
-  const allImages = [property.image, ...(property.images || [])].filter(
-    Boolean,
-  );
+  const allImages = [property.image, ...(property.images || [])].filter(Boolean);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": ["Product", "RealEstateListing"],
@@ -115,19 +182,13 @@ export default async function PropertyDetails({ params }) {
     url: `${siteUrl}/properties/${slug}`,
     image: allImages,
     datePosted: property.created_at,
-    brand: {
-      "@type": "Organization",
-      name: "Andreams Homes",
-    },
+    brand: { "@type": "Organization", name: "Andreams Homes" },
     offers: {
       "@type": "Offer",
       price: property.price?.replace(/[^0-9.]/g, "") || undefined,
       priceCurrency: "NGN",
       availability: "https://schema.org/InStock",
-      seller: {
-        "@type": "Organization",
-        name: "Andreams Homes",
-      },
+      seller: { "@type": "Organization", name: "Andreams Homes" },
     },
     address: {
       "@type": "PostalAddress",
@@ -135,441 +196,308 @@ export default async function PropertyDetails({ params }) {
       addressCountry: "NG",
     },
     additionalProperty: [
-      property.beds
-        ? { "@type": "PropertyValue", name: "Bedrooms", value: property.beds }
-        : null,
-      property.size
-        ? { "@type": "PropertyValue", name: "Size", value: property.size }
-        : null,
-      property.status
-        ? { "@type": "PropertyValue", name: "Status", value: property.status }
-        : null,
+      property.beds ? { "@type": "PropertyValue", name: "Bedrooms", value: property.beds } : null,
+      property.size ? { "@type": "PropertyValue", name: "Size", value: property.size } : null,
+      property.status ? { "@type": "PropertyValue", name: "Status", value: property.status } : null,
     ].filter(Boolean),
   };
 
+  const title = tidy(property.title);
+  const status = sentence(property.status);
+  const facts = [
+    property.type && { label: "Type", value: tidy(property.type) },
+    property.beds && { label: "Bedrooms", value: formatBeds(property.beds) },
+    property.size && { label: "Size", value: tidy(property.size) },
+    status && { label: "Status", value: status },
+    property.developer && { label: "Developer", value: property.developer },
+    property.supported_by && { label: "Supported by", value: property.supported_by },
+  ].filter(Boolean);
+
+  const plots = filled(property.plot_types, "type");
+  const servicePlots = filled(property.service_plots, "size");
+  const banks = filled(property.bank_details, "bank");
+  const video = youTubeEmbed(property.video_placeholder);
+
+  // Only sections with content are rendered; numbering follows what's present.
+  const sections = [
+    property.description && {
+      id: "overview",
+      title: "Overview",
+      body: <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-primary/85 whitespace-pre-line">{property.description}</p>,
+    },
+    property.features?.length > 0 && {
+      id: "features",
+      title: "Key features & amenities",
+      body: <CheckList items={property.features} />,
+    },
+    plots.length > 0 && {
+      id: "plots",
+      title: "Plot types & pricing",
+      body: (
+        <>
+          <PriceTable
+            rows={plots}
+            columns={[
+              { key: "type", label: "Type", first: true },
+              { key: "size", label: "Size" },
+              { key: "units", label: "Units" },
+              { key: "price", label: "Price", price: true },
+            ]}
+          />
+          {property.registration_fee && (
+            <p className="mt-3 text-[13px] text-ink-soft">
+              Registration fee: <span className="text-primary">{formatPrice(property.registration_fee)}</span>
+            </p>
+          )}
+        </>
+      ),
+    },
+    servicePlots.length > 0 && {
+      id: "service-plots",
+      title: "Service plots",
+      body: (
+        <PriceTable
+          rows={servicePlots}
+          columns={[
+            { key: "size", label: "Size", first: true },
+            { key: "house_type", label: "House type" },
+            { key: "price", label: "Price", price: true },
+          ]}
+        />
+      ),
+    },
+    property.payment_options?.length > 0 && {
+      id: "payment",
+      title: "Payment options",
+      body: (
+        <ol className="border-t border-line">
+          {property.payment_options.map((o, i) => (
+            <li key={i} className="flex items-baseline gap-4 border-b border-line py-4 text-base text-primary">
+              <span className="text-[11px] tabular-nums text-accent">{pad(i + 1)}</span>
+              {o}
+            </li>
+          ))}
+        </ol>
+      ),
+    },
+    banks.length > 0 && {
+      id: "bank",
+      title: "Bank details for payment",
+      body: (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {banks.map((b, i) => (
+            <div key={i} className="border border-line bg-white p-5">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-accent">{b.bank}</p>
+              <p className="mt-2 text-sm text-ink-soft">{b.account_name}</p>
+              <p className="mt-1 font-mono text-xl tracking-wider text-primary">{b.account_no}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    property.facilities?.length > 0 && {
+      id: "facilities",
+      title: "Standard estate facilities",
+      body: <CheckList items={property.facilities} />,
+    },
+    property.site_plan_image && {
+      id: "site-plan",
+      title: "Site plan",
+      body: (
+        <div className="relative aspect-4/3 border border-line bg-white">
+          <Image src={property.site_plan_image} alt={`${title} — site plan`} fill sizes="(min-width: 1024px) 60vw, 100vw" className="object-contain p-4" />
+        </div>
+      ),
+    },
+    video && {
+      id: "video",
+      title: "Video tour",
+      body: (
+        <div className="relative aspect-video overflow-hidden bg-primary">
+          <iframe
+            src={video}
+            title={`${title} — Video Tour`}
+            className="absolute inset-0 h-full w-full"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+          />
+        </div>
+      ),
+    },
+    property.map_embed && {
+      id: "location",
+      title: "Location",
+      body: (
+        <div className="group relative h-90 overflow-hidden border border-line bg-surface">
+          <iframe
+            src={property.map_embed}
+            title={`Map — ${title} in ${property.location}`}
+            className="absolute inset-0 h-full w-full grayscale-[0.85] transition-[filter] duration-700 group-hover:grayscale-0"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      ),
+    },
+  ].filter(Boolean);
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <main className="min-h-screen bg-primary overflow-hidden selection:bg-accent selection:text-white">
-        {/* Full-Bleed Hero Banner */}
-        <section className="relative w-full h-[55vh] md:h-[70vh]">
-          <Image
-            src={property.image}
-            alt={`${property.title} — ${property.type} for sale in ${property.location}`}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <main className="min-h-screen bg-canvas pt-8 md:pt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <Reveal onMount y={8} className="flex items-center gap-2 text-[13px] text-ink-soft">
+            <Link href="/properties" className="group inline-flex items-center gap-1.5 transition-colors hover:text-primary">
+              <HiArrowLeft className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+              Properties
+            </Link>
+            <span className="text-line">/</span>
+            <span className="truncate text-primary">{title}</span>
+          </Reveal>
 
-          {/* Back button overlay */}
-          <div className="absolute top-24 left-0 right-0 z-10">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <Link
-                href="/properties"
-                className="inline-flex items-center text-white/80 hover:text-white transition-colors gap-2 group"
+          {/* Header */}
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+            <div className="lg:col-span-8">
+              <Reveal onMount delay={0.1} className="flex flex-wrap items-center gap-2">
+                {property.property_type && (
+                  <span className="border border-accent/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-accent">
+                    {property.property_type}
+                  </span>
+                )}
+                {status && (
+                  <span className="border border-line bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-primary">
+                    {status}
+                  </span>
+                )}
+              </Reveal>
+              <WordReveal
+                as="h1"
+                onMount
+                delay={0.15}
+                stagger={0.05}
+                lines={[title]}
+                className="mt-5 font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-tight text-primary"
+              />
+              <Reveal onMount delay={0.4} as="p" className="mt-5 flex items-start gap-1.5 text-sm text-ink-soft">
+                <HiOutlineLocationMarker className="mt-0.5 shrink-0 text-base text-accent" />
+                {tidy(property.location)}
+              </Reveal>
+            </div>
+
+            <Reveal onMount delay={0.45} className="lg:col-span-4 lg:justify-self-end lg:text-right">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-ink-soft">Price</p>
+              <p className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight text-primary">
+                {formatPrice(property.price)}
+              </p>
+              <a
+                href="#book"
+                className="group mt-5 inline-flex items-center gap-2 bg-primary px-5 py-3 text-sm text-white transition-colors duration-300 hover:bg-primary-light"
               >
-                <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-colors">
-                  <HiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+                Book an inspection
+                <BsArrowUpRight className="text-xs transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
+            </Reveal>
+          </div>
+
+          {/* Photos */}
+          <div className="mt-10">
+            <PropertyMedia images={allImages} title={title} status={status} />
+          </div>
+
+          {/* Key facts */}
+          {facts.length > 0 && (
+            <Reveal className="mt-10 grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-px border border-line bg-line">
+              {facts.map((f) => (
+                <div key={f.label} className="bg-white px-5 py-5">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-ink-soft">{f.label}</p>
+                  <p className="mt-2 text-sm font-medium leading-snug text-primary">{f.value}</p>
                 </div>
-                <span className="text-sm font-medium tracking-wide">
-                  Back to Properties
-                </span>
-              </Link>
-            </div>
-          </div>
+              ))}
+            </Reveal>
+          )}
 
-          {/* Bottom curved edge */}
-          <div className="absolute bottom-0 left-0 right-0">
-            <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-              <path d="M0 60V30C360 0 1080 0 1440 30V60H0Z" fill="#0a0a0a"/>
-            </svg>
-          </div>
-        </section>
-
-        {/* Project Title + Overview Section */}
-        <section className="bg-primary relative z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            {/* Project Label */}
-            <p className="text-accent text-sm font-bold tracking-widest uppercase mb-3">Project</p>
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
-              {property.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 mb-12">
-              <span className="flex items-center text-white/60 text-sm font-medium">
-                <HiOutlineLocationMarker className="mr-1.5 text-accent text-lg" />
-                {property.location}
-              </span>
-              {property.property_type && (
-                <span className="bg-accent/10 text-accent text-xs font-bold px-3 py-1 rounded-full border border-accent/20">
-                  {property.property_type}
-                </span>
-              )}
-              {property.status && (
-                <span className="bg-white/10 text-white/70 text-xs font-bold px-3 py-1 rounded-full">
-                  {property.status}
-                </span>
-              )}
-            </div>
-
-            {/* Description + Secondary Image */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-              {/* Left: Description */}
-              <div>
-                <p className="text-white/70 text-base leading-relaxed mb-8">
-                  {property.description}
-                </p>
-
-                {/* Developer & Supported By badges */}
-                {(property.developer || property.supported_by) && (
-                  <div className="flex flex-wrap gap-3 mb-8">
-                    {property.developer && (
-                      <span className="bg-accent/10 text-accent text-xs font-bold px-4 py-2 rounded-full border border-accent/20">
-                        Developer: {property.developer}
-                      </span>
-                    )}
-                    {property.supported_by && (
-                      <span className="bg-white/10 text-white/70 text-xs font-bold px-4 py-2 rounded-full border border-white/10">
-                        Supported by: {property.supported_by}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                  {property.beds && (
-                    <div className="border-l-2 border-accent pl-4">
-                      <p className="text-white/50 text-xs tracking-wider uppercase mb-1">Type</p>
-                      <p className="text-white font-bold">{property.beds}</p>
-                    </div>
-                  )}
-                  {property.size && (
-                    <div className="border-l-2 border-white/10 pl-4">
-                      <p className="text-white/50 text-xs tracking-wider uppercase mb-1">Size</p>
-                      <p className="text-white font-bold">{property.size}</p>
-                    </div>
-                  )}
-                  <div className="border-l-2 border-accent pl-4">
-                    <p className="text-white/50 text-xs tracking-wider uppercase mb-1">Price</p>
-                    <p className="text-accent font-extrabold text-lg">{property.price}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: Secondary Image or Map */}
-              <div className="relative rounded-2xl overflow-hidden shadow-xl h-[350px] lg:h-[400px]">
-                {property.images && property.images.length > 0 ? (
-                  <Image
-                    src={property.images[0]}
-                    alt={`${property.title} — detail view`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-primary" />
-                    <iframe
-                      src={
-                        property.map_embed ||
-                        `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.0!2d7.5!3d9.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAbuja!5e0!3m2!1sen!2sng!4v1711200000000!5m2!1sen!2sng`
-                      }
-                      title={`Map — ${property.title}`}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen=""
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="absolute inset-0 z-0"
-                    />
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Property Gallery */}
-        {property.images && property.images.length > 0 && (
-          <PropertyGallery images={property.images} title={property.title} />
-        )}
-
-        {/* Map Section (always show if images exist — map wasn't shown above) */}
-        {property.images && property.images.length > 0 && (
-          <section className="bg-primary border-y border-white/10">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <span className="w-6 h-[2px] bg-accent inline-block"></span>
-                Location Map
-              </h2>
-              <div className="w-full h-[350px] rounded-2xl overflow-hidden border border-white/10 shadow-sm">
-                <iframe
-                  src={
-                    property.map_embed ||
-                    `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.0!2d7.5!3d9.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAbuja!5e0!3m2!1sen!2sng!4v1711200000000!5m2!1sen!2sng`
-                  }
-                  title={`Map — ${property.title} in ${property.location}`}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-            </div>
-          </section>
-        )}
-
-          {/* Video Tour (YouTube Embed) */}
-          {property.video_placeholder &&
-            (() => {
-              const getYouTubeEmbedUrl = (url) => {
-                if (!url) return null;
-                let videoId = null;
-                const watchMatch = url.match(
-                  /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
-                );
-                if (watchMatch) videoId = watchMatch[1];
-                if (!videoId) {
-                  const shortMatch = url.match(
-                    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-                  );
-                  if (shortMatch) videoId = shortMatch[1];
-                }
-                if (!videoId) {
-                  const embedMatch = url.match(
-                    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-                  );
-                  if (embedMatch) videoId = embedMatch[1];
-                }
-                return videoId
-                  ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1&mute=1`
-                  : null;
-              };
-
-              const embedUrl = getYouTubeEmbedUrl(property.video_placeholder);
-              if (!embedUrl) return null;
-
-              return (
-                <section className="bg-primary">
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                      <span className="w-6 h-[2px] bg-accent inline-block"></span>
-                      Video Tour
+          {/* Content + booking */}
+          <div className="mt-16 md:mt-24 pb-24 md:pb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+            <div className="lg:col-span-7 space-y-16 md:space-y-20">
+              {sections.map((s, i) => (
+                <section key={s.id} id={s.id} className="scroll-mt-28">
+                  <Reveal className="flex items-baseline gap-4 border-b border-line pb-4">
+                    <span className="text-[11px] tabular-nums text-accent">{pad(i + 1)}</span>
+                    <h2 className="font-display font-bold text-3xl sm:text-4xl leading-none tracking-tight text-primary">
+                      {s.title}
                     </h2>
-                    <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-white/10">
-                      <iframe
-                        src={embedUrl}
-                        title={`${property.title} - Video Tour`}
-                        width="100%"
-                        height="100%"
-                        className="absolute inset-0 w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
+                  </Reveal>
+                  <Reveal delay={0.1} className="mt-6">
+                    {s.body}
+                  </Reveal>
                 </section>
-              );
-            })()}
-
-        {/* Details & Booking Section */}
-        <section className="bg-primary pb-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
-              {/* Left Column */}
-              <div className="lg:col-span-7 space-y-8">
-
-                {/* Features */}
-                {property.features && property.features.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                    <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">
-                      Key Features & Amenities
-                    </h4>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
-                      {property.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start text-white/80 text-sm">
-                          <HiOutlineCheck className="text-accent text-lg shrink-0 mr-3 mt-0.5" />
-                          <span className="leading-relaxed">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Plot Types Table */}
-                {property.plot_types && property.plot_types.length > 0 && property.plot_types.some(p => p.type) && (
-                  <div className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                    <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">
-                      Plot Types & Pricing
-                    </h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead>
-                          <tr className="border-b border-white/10 text-white/50 uppercase text-xs tracking-wider">
-                            <th className="pb-3 pr-4">Type</th>
-                            <th className="pb-3 pr-4">Size</th>
-                            <th className="pb-3 pr-4">Units</th>
-                            <th className="pb-3">Price</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {property.plot_types.filter(p => p.type).map((plot, idx) => (
-                            <tr key={idx} className="border-b border-white/5">
-                              <td className="py-3 pr-4 text-white/80 font-medium">{plot.type}</td>
-                              <td className="py-3 pr-4 text-white/60">{plot.size}</td>
-                              <td className="py-3 pr-4 text-white/60">{plot.units}</td>
-                              <td className="py-3 text-accent font-bold">{plot.price}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {property.registration_fee && (
-                      <p className="text-white/40 text-xs mt-4 font-medium">
-                        Registration Fee: <span className="text-accent">{property.registration_fee}</span>
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Service Plots Table */}
-                {property.service_plots && property.service_plots.length > 0 && property.service_plots.some(s => s.size) && (
-                  <div className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                    <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">
-                      Service Plots
-                    </h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-200 text-gray-400 uppercase text-xs tracking-wider">
-                            <th className="pb-3 pr-4">Size</th>
-                            <th className="pb-3 pr-4">House Type</th>
-                            <th className="pb-3">Price</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {property.service_plots.filter(s => s.size).map((sp, idx) => (
-                            <tr key={idx} className="border-b border-white/5">
-                              <td className="py-3 pr-4 text-white/80 font-medium">{sp.size}</td>
-                              <td className="py-3 pr-4 text-white/60">{sp.house_type}</td>
-                              <td className="py-3 text-accent font-bold">{sp.price}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* Payment Options */}
-                {property.payment_options && property.payment_options.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                    <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">
-                      Payment Options
-                    </h4>
-                    <ul className="space-y-3">
-                      {property.payment_options.map((option, idx) => (
-                        <li key={idx} className="flex items-center text-white/80 text-sm">
-                          <span className="w-2 h-2 rounded-full bg-accent shrink-0 mr-3" />
-                          {option}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Bank Details */}
-                {property.bank_details && property.bank_details.length > 0 && property.bank_details.some(b => b.bank) && (
-                  <div className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                    <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">
-                      Bank Details for Payment
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {property.bank_details.filter(b => b.bank).map((bd, idx) => (
-                        <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-5">
-                          <p className="text-accent font-bold text-sm mb-2">{bd.bank}</p>
-                          <p className="text-white/70 text-sm">{bd.account_name}</p>
-                          <p className="text-white font-mono text-lg font-bold mt-1">{bd.account_no}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Facilities */}
-                {property.facilities && property.facilities.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                    <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">
-                      Standard Estate Facilities
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {property.facilities.map((facility, idx) => (
-                        <div key={idx} className="flex items-center text-white/70 text-sm">
-                          <HiOutlineCheck className="text-accent shrink-0 mr-2" />
-                          {facility}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column: Book Inspection Form */}
-              <div className="lg:col-span-5">
-                <BookInspectionForm
-                  propertyId={property.id}
-                  propertyTitle={property.title}
-                />
-              </div>
+              ))}
             </div>
-          </div>
-        </section>
 
-        {/* Related Properties */}
-        {relatedProperties && relatedProperties.length > 0 && (
-          <section className="bg-primary border-t border-white/10">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-              <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-                <span className="w-8 h-[2px] bg-accent inline-block"></span>
-                SIMILAR PROPERTIES
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedProperties.map((related) => (
-                  <Link
-                    key={related.slug}
-                    href={`/properties/${related.slug}`}
-                    className="group block bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-accent/40 transition-all hover:shadow-lg"
-                  >
-                    <div className="relative w-full h-48 overflow-hidden">
-                      <Image
-                        src={related.image}
-                        alt={`${related.title} — ${related.type} in ${related.location}`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                    </div>
-                    <div className="p-5">
-                      <p className="text-white/50 text-xs mb-1 flex items-center gap-1">
-                        <HiOutlineLocationMarker className="text-accent" />
-                        {related.location}
-                      </p>
-                      <h3 className="text-white font-bold text-lg mb-2 group-hover:text-accent transition-colors line-clamp-1">
-                        {related.title}
-                      </h3>
-                      <p className="text-accent font-bold">{related.price}</p>
-                    </div>
-                  </Link>
-                ))}
+            <aside id="book" className="lg:col-span-5 scroll-mt-28">
+              <div className="lg:sticky lg:top-28">
+                <Reveal className="border border-line bg-white p-6 sm:p-8">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-accent">Book inspection</p>
+                  <p className="mt-3 font-display font-bold text-3xl leading-tight text-primary">
+                    Schedule a VIP tour of this property
+                  </p>
+                  <div className="mt-5 flex items-baseline justify-between gap-4 border-y border-line py-4">
+                    <span className="min-w-0 truncate text-sm text-ink-soft">{title}</span>
+                    <span className="shrink-0 text-base font-semibold text-primary">{formatPrice(property.price)}</span>
+                  </div>
+                  <div className="mt-8">
+                    <BookInspectionForm propertyId={property.id} propertyTitle={property.title} />
+                  </div>
+                </Reveal>
+
+                {phone && (
+                  <Reveal delay={0.1}>
+                    <a
+                      href={`tel:${telPhone(phone)}`}
+                      className="group mt-3 flex items-center justify-between gap-4 border border-line bg-white px-6 py-5 transition-colors hover:border-primary/30"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center bg-canvas text-primary">
+                          <BsTelephone className="text-sm" />
+                        </span>
+                        <span>
+                          <span className="block text-[11px] uppercase tracking-[0.14em] text-ink-soft">Prefer to talk?</span>
+                          <span className="block text-base text-primary transition-colors group-hover:text-accent">
+                            {displayPhone(phone)}
+                          </span>
+                        </span>
+                      </span>
+                      <BsArrowUpRight className="text-xs text-ink-soft transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </a>
+                  </Reveal>
+                )}
               </div>
+            </aside>
+          </div>
+        </div>
+
+        {/* Similar properties */}
+        {related.length > 0 && (
+          <section className="border-t border-line bg-white py-20 md:py-28">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="mb-8 flex items-end justify-between gap-4">
+                <WordReveal
+                  as="h2"
+                  lines={[{ text: "Similar properties", accent: ["properties"] }]}
+                  className="font-display font-bold text-4xl sm:text-5xl leading-none tracking-tight text-primary"
+                />
+                <Reveal>
+                  <Link href="/properties" className="group inline-flex items-center gap-1.5 text-[13px] text-ink-soft transition-colors hover:text-primary">
+                    View all
+                    <BsArrowUpRight className="text-[11px] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </Link>
+                </Reveal>
+              </div>
+              <PropertyGrid items={related} />
             </div>
           </section>
         )}

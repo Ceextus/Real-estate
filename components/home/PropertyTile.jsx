@@ -2,13 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { LuBedDouble, LuRuler, LuHouse } from "react-icons/lu";
-import { tidy, sentence } from "@/lib/format";
-
-const formatPrice = (p) => (p ?? "").replace(/₦\s+/g, "₦").trim();
-const formatBeds = (b) => {
-  const t = tidy(b);
-  return /^\d+$/.test(t) ? `${t} ${t === "1" ? "bed" : "beds"}` : t;
-};
+import { tidy, sentence, formatPrice, formatBeds } from "@/lib/format";
 
 export default function PropertyTile({ property, priority = false }) {
   const status = sentence(property.status);

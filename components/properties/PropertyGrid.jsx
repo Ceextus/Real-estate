@@ -58,12 +58,14 @@ export default function PropertyGrid({ items, onClear, gridKey }) {
             className="border border-dashed border-line py-16 text-center"
           >
             <p className="text-sm text-primary">No properties match those filters yet.</p>
-            <button
-              onClick={onClear}
-              className="mt-3 text-[13px] text-ink-soft underline underline-offset-4 hover:text-primary"
-            >
-              Clear filters
-            </button>
+            {onClear && (
+              <button
+                onClick={onClear}
+                className="mt-3 text-[13px] text-ink-soft underline underline-offset-4 hover:text-primary"
+              >
+                Clear filters
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

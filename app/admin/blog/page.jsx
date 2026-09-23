@@ -109,7 +109,7 @@ export default function AdminBlog() {
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
+          className="bg-primary hover:bg-primary-light text-white px-6 py-3 font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
         >
           <BsPlusLg strokeWidth={1} />
           New Blog Post
@@ -117,7 +117,7 @@ export default function AdminBlog() {
       </div>
 
       {/* Search */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <div className="bg-white p-4 shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative w-full sm:w-96">
           <BsSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -125,13 +125,13 @@ export default function AdminBlog() {
             placeholder="Search by title or author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
+            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
           />
         </div>
       </div>
 
       {/* Posts Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
             <LogoLoader />
@@ -156,7 +156,7 @@ export default function AdminBlog() {
                   >
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-4">
-                        <div className="relative w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                        <div className="relative w-16 h-12 overflow-hidden shrink-0 bg-gray-100">
                           {post.image && (
                             <Image
                               src={post.image}
@@ -179,7 +179,7 @@ export default function AdminBlog() {
                     </td>
                     <td className="py-4 px-6 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                        className={`inline-flex items-center px-2.5 py-0.5 text-xs font-bold ${
                           post.published
                             ? "bg-green-50 text-green-600"
                             : "bg-gray-100 text-gray-500"
@@ -192,14 +192,14 @@ export default function AdminBlog() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => openEditModal(post)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                           title="Edit Post"
                         >
                           <BsPencilSquare />
                         </button>
                         <button
                           onClick={() => openDeleteModal(post)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                           title="Delete Post"
                         >
                           <BsTrash />
@@ -265,13 +265,13 @@ export default function AdminBlog() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm"
               >
                 Delete Post
               </button>
@@ -480,7 +480,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       {error && (
-        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+        <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm">
           {error}
         </div>
       )}
@@ -497,7 +497,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
           onChange={handleChange}
           placeholder="e.g. Andreams Global Launches New Estate in Lekki"
           required
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
         />
       </div>
 
@@ -513,20 +513,20 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
             value={form.author}
             onChange={handleChange}
             placeholder="Andreams Homes"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700 block">
             Status
           </label>
-          <label className="flex items-center gap-3 cursor-pointer bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+          <label className="flex items-center gap-3 cursor-pointer bg-gray-50 border border-gray-200 px-4 py-3">
             <input
               type="checkbox"
               name="published"
               checked={form.published}
               onChange={handleChange}
-              className="w-4 h-4 rounded accent-accent"
+              className="w-4 h-4 accent-accent"
             />
             <span className="text-sm text-gray-700 font-medium">
               {form.published
@@ -549,7 +549,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
           onChange={handleChange}
           rows={2}
           placeholder="A brief summary of the article..."
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
         />
       </div>
 
@@ -565,7 +565,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
           rows={8}
           placeholder="Write the full blog post content here..."
           required
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
         />
       </div>
 
@@ -576,7 +576,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
           <span className="text-gray-400 font-normal">(max 10MB)</span>
         </label>
         {imagePreview ? (
-          <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 h-48 w-full sm:w-1/2">
+          <div className="relative overflow-hidden border border-gray-200 bg-gray-50 h-48 w-full sm:w-1/2">
             <img
               src={imagePreview}
               alt="Preview"
@@ -598,7 +598,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
             }}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => document.getElementById("blog-cover-upload").click()}
-            className="w-full sm:w-1/2 py-10 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
+            className="w-full sm:w-1/2 py-10 border-2 border-dashed border-gray-300 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
           >
             <BsCloudUpload className="text-3xl text-gray-400" />
             <p className="text-sm text-gray-500 font-medium">
@@ -631,7 +631,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
             }}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => document.getElementById("blog-aux-upload").click()}
-            className="w-full py-8 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
+            className="w-full py-8 border-2 border-dashed border-gray-300 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
           >
             <BsCloudUpload className="text-2xl text-gray-400" />
             <p className="text-sm text-gray-500 font-medium">
@@ -653,7 +653,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
             {existingAuxImages.map((url, idx) => (
               <div
                 key={`existing-${idx}`}
-                className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group"
+                className="relative aspect-square overflow-hidden border border-gray-200 bg-gray-50 group"
               >
                 <img
                   src={url}
@@ -668,7 +668,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
                 >
                   <BsTrash size={14} />
                 </button>
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm text-white text-[10px] rounded-full font-medium">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium">
                   Saved
                 </div>
               </div>
@@ -676,7 +676,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
             {auxImagePreviews.map((preview, idx) => (
               <div
                 key={`new-${idx}`}
-                className="relative aspect-square rounded-xl overflow-hidden border border-accent/30 bg-gray-50 group"
+                className="relative aspect-square overflow-hidden border border-accent/30 bg-gray-50 group"
               >
                 <img
                   src={preview}
@@ -691,7 +691,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
                 >
                   <BsXCircleFill size={14} />
                 </button>
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-accent text-white text-[10px] rounded-full font-medium">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-accent text-white text-[10px] font-medium">
                   New
                 </div>
               </div>
@@ -712,7 +712,7 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
           value={form.youtube_url}
           onChange={handleChange}
           placeholder="e.g. https://www.youtube.com/watch?v=abc123"
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
         />
         <p className="text-xs text-gray-400">
           Supports youtube.com/watch, youtu.be, and embed links
@@ -724,14 +724,14 @@ function BlogPostForm({ post = null, onSuccess, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-70"
+          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold hover:bg-primary-light transition-colors shadow-sm disabled:opacity-70"
         >
           {saving ? "Saving..." : isEditing ? "Save Changes" : "Publish Post"}
         </button>

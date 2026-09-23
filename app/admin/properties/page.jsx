@@ -8,6 +8,30 @@ import AdminModal from "@/components/admin/AdminModal";
 import { createClient } from "@/utils/supabase/client";
 import LogoLoader from "@/components/LogoLoader";
 import { useToast } from "@/components/Toast";
+import { tidy, sentence, formatPrice } from "@/lib/format";
+
+function RowActions({ onEdit, onDelete }) {
+  return (
+    <div className="flex justify-end gap-1">
+      <button
+        onClick={onEdit}
+        className="p-2 text-ink-soft transition-colors hover:bg-primary/8 hover:text-primary"
+        title="Edit property"
+        aria-label="Edit property"
+      >
+        <BsPencilSquare />
+      </button>
+      <button
+        onClick={onDelete}
+        className="p-2 text-ink-soft transition-colors hover:bg-red-50 hover:text-red-600"
+        title="Delete property"
+        aria-label="Delete property"
+      >
+        <BsTrash />
+      </button>
+    </div>
+  );
+}
 
 export default function AdminProperties() {
   const router = useRouter();
@@ -88,103 +112,121 @@ export default function AdminProperties() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
-      
+    <div className="max-w-7xl mx-auto space-y-8 pb-12">
+
       {/* Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Properties Management</h1>
-          <p className="text-gray-500">Add, edit, or remove properties displayed on the site.</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">
+            {properties.length} {properties.length === 1 ? "listing" : "listings"}
+          </p>
+          <h1 className="mt-3 font-display font-bold text-4xl leading-none tracking-tight text-primary">
+            Properties
+          </h1>
+          <p className="mt-3 text-sm text-ink-soft">Add, edit, or remove properties displayed on the site.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
+          className="inline-flex w-fit items-center justify-center gap-2 bg-primary px-5 py-3 text-sm text-white transition-colors hover:bg-primary-light"
         >
           <BsPlusLg strokeWidth={1} />
-          Add New Property
+          Add new property
         </button>
       </div>
 
-      {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full sm:w-96">
-          <BsSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search properties by title or location..."
+      {/* Search */}
+      <div className="border border-line bg-white p-3">
+        <label className="relative flex w-full sm:w-96 items-center">
+          <span className="sr-only">Search properties</span>
+          <BsSearch className="pointer-events-none absolute left-3.5 text-ink-soft" />
+          <input
+            type="search"
+            placeholder="Search properties by title or location…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
+            className="w-full border border-line bg-canvas py-2.5 pl-10 pr-3 text-sm text-primary outline-none transition-colors focus:border-primary/40 focus:bg-white"
           />
-        </div>
+        </label>
       </div>
 
-      {/* Properties Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          {loading ? (
-            <LogoLoader />
-          ) : (
-            <table className="w-full text-left border-collapse">
+      {/* Properties */}
+      <div className="border border-line bg-white">
+        {loading ? (
+          <LogoLoader />
+        ) : filteredProperties.length === 0 ? (
+          <p className="py-12 text-center text-sm text-ink-soft">No properties found.</p>
+        ) : (
+          <>
+            {/* Desktop table: fixed column widths so long titles/locations wrap instead of widening the page */}
+            <table className="hidden md:table w-full table-fixed text-left text-sm">
+              <colgroup>
+                <col className="w-[38%]" />
+                <col className="w-[26%]" />
+                <col className="w-[14%]" />
+                <col className="w-[12%]" />
+                <col className="w-[10%]" />
+              </colgroup>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
-                  <th className="py-4 px-6 font-semibold">Property</th>
-                  <th className="py-4 px-6 font-semibold">Location</th>
-                  <th className="py-4 px-6 font-semibold">Price</th>
-                  <th className="py-4 px-6 font-semibold">Status</th>
-                  <th className="py-4 px-6 font-semibold text-right">Actions</th>
+                <tr className="border-b border-line text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+                  <th className="px-5 py-3.5 font-normal">Property</th>
+                  <th className="px-5 py-3.5 font-normal">Location</th>
+                  <th className="px-5 py-3.5 font-normal">Price</th>
+                  <th className="px-5 py-3.5 font-normal">Status</th>
+                  <th className="px-5 py-3.5 font-normal text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {filteredProperties.map((property) => (
-                  <tr key={property.id} className="hover:bg-gray-50/50 transition-colors group">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-4">
-                        <div className="relative w-16 h-12 rounded-lg overflow-hidden shrink-0">
-                          <Image src={property.image} alt={property.title} fill className="object-cover" />
+                  <tr key={property.id} className="group border-b border-line last:border-0 transition-colors hover:bg-canvas">
+                    <td className="px-5 py-4">
+                      <div className="flex min-w-0 items-center gap-4">
+                        <div className="relative h-12 w-16 shrink-0 overflow-hidden bg-surface">
+                          {property.image && <Image src={property.image} alt={property.title} fill sizes="64px" className="object-cover" />}
                         </div>
-                        <span className="font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1">{property.title}</span>
+                        <span className="min-w-0 font-medium leading-snug text-primary line-clamp-2">{tidy(property.title)}</span>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-gray-500 text-sm whitespace-nowrap">{property.location}</td>
-                    <td className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">{property.price}</td>
-                    <td className="py-4 px-6 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        property.property_type === "Move-In Ready" ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"
-                      }`}>
-                        {property.status}
-                      </span>
+                    <td className="px-5 py-4 text-ink-soft">
+                      <span className="line-clamp-2">{tidy(property.location)}</span>
                     </td>
-                    <td className="py-4 px-6 text-right whitespace-nowrap">
-                      <div className="flex justify-end gap-2">
-                        <button 
-                          onClick={() => openEditModal(property)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
-                          title="Edit Property"
-                        >
-                          <BsPencilSquare />
-                        </button>
-                        <button 
-                          onClick={() => openDeleteModal(property)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
-                          title="Delete Property"
-                        >
-                          <BsTrash />
-                        </button>
-                      </div>
+                    <td className="px-5 py-4 font-medium text-primary">{formatPrice(property.price)}</td>
+                    <td className="px-5 py-4">
+                      {property.status && (
+                        <span className={`inline-block max-w-full truncate px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] ${
+                          property.property_type === "Move-In Ready" ? "bg-accent/12 text-accent" : "bg-primary/8 text-primary"
+                        }`}>
+                          {sentence(property.status)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-4">
+                      <RowActions onEdit={() => openEditModal(property)} onDelete={() => openDeleteModal(property)} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-          
-          {!loading && filteredProperties.length === 0 && (
-            <div className="py-12 text-center text-gray-500">
-              No properties found.
-            </div>
-          )}
-        </div>
+
+            {/* Mobile: stacked cards */}
+            <ul className="md:hidden">
+              {filteredProperties.map((property) => (
+                <li key={property.id} className="flex gap-4 border-b border-line p-4 last:border-0">
+                  <div className="relative h-16 w-20 shrink-0 overflow-hidden bg-surface">
+                    {property.image && <Image src={property.image} alt={property.title} fill sizes="80px" className="object-cover" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium leading-snug text-primary line-clamp-2">{tidy(property.title)}</p>
+                    <p className="mt-1 text-xs text-ink-soft line-clamp-1">{tidy(property.location)}</p>
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium text-primary">{formatPrice(property.price)}</span>
+                      <RowActions onEdit={() => openEditModal(property)} onDelete={() => openDeleteModal(property)} />
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       {/* MODALS */}
@@ -221,13 +263,13 @@ export default function AdminProperties() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
               <button 
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleDelete}
-                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm"
               >
                 Delete Property
               </button>
@@ -675,7 +717,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
   // Small "auto-filled" tag shown next to fields populated from a flier.
   const AutoBadge = ({ field }) =>
     autoFilled.includes(field) ? (
-      <span className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full align-middle">
+      <span className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 align-middle">
         <BsStars className="text-[9px]" /> auto-filled
       </span>
     ) : null;
@@ -684,11 +726,11 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
     <form className="space-y-5" onSubmit={handleSubmit}>
       
       {error && (
-        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{error}</div>
+        <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm">{error}</div>
       )}
 
       {/* ─── Auto-fill from flier (AI) ─── */}
-      <div className="rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5 p-4 space-y-3">
+      <div className=" border border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5 p-4 space-y-3">
           <div className="flex items-center gap-2">
             <BsStars className="text-accent text-lg" />
             <span className="text-sm font-bold text-gray-800">Auto-fill from a flier</span>
@@ -701,7 +743,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
             onDrop={(e) => { e.preventDefault(); if (!parsing) handleFlierUpload(e.dataTransfer?.files?.[0]); }}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => { if (!parsing) document.getElementById("flier-upload").click(); }}
-            className={`w-full py-8 border-2 border-dashed rounded-xl flex flex-col items-center gap-2 transition-colors ${
+            className={`w-full py-8 border-2 border-dashed flex flex-col items-center gap-2 transition-colors ${
               parsing ? "border-accent bg-accent/5 cursor-wait" : "border-accent/40 bg-white/60 hover:border-accent hover:bg-accent/5 cursor-pointer"
             }`}
           >
@@ -730,10 +772,10 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           />
 
           {parseNote && (
-            <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">{parseNote}</div>
+            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm">{parseNote}</div>
           )}
           {parseError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{parseError}</div>
+            <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm">{parseError}</div>
           )}
       </div>
 
@@ -742,7 +784,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <input 
           type="text" name="title" value={form.title} onChange={handleChange}
           placeholder="e.g. Luxury 5-Bedroom Detached Duplex" required
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
         />
       </div>
 
@@ -752,7 +794,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <input 
             type="text" name="location" value={form.location} onChange={handleChange}
             placeholder="e.g. Karu, Abuja FCT" required
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
         <div className="space-y-2">
@@ -760,7 +802,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <input 
             type="text" name="price" value={form.price} onChange={handleChange}
             placeholder="e.g. ₦ 350,000,000" required
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
       </div>
@@ -771,7 +813,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <input 
             type="text" name="type" value={form.type} onChange={handleChange}
             placeholder="e.g. 4 Bed Terraced" required
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
         <div className="space-y-2">
@@ -779,7 +821,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <input 
             type="text" name="beds" value={form.beds} onChange={handleChange}
             placeholder="e.g. 4 Bedroom Penthouse Suite"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
       </div>
@@ -789,7 +831,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <label className="text-sm font-semibold text-gray-700 block">Property Category <AutoBadge field="property_type" /></label>
           <select 
             name="property_type" value={form.property_type} onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
           >
             <option value="Buy & Build">Buy & Build</option>
             <option value="Move-In Ready">Move-In Ready</option>
@@ -801,7 +843,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <input 
             type="text" name="status" value={form.status} onChange={handleChange}
             placeholder="e.g. Fully Finished, Off-Plan"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
       </div>
@@ -812,7 +854,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <input 
             type="text" name="size" value={form.size} onChange={handleChange}
             placeholder="e.g. 450 sqm"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
       </div>
@@ -821,7 +863,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       <div className="space-y-2">
         <label className="text-sm font-semibold text-gray-700 block">Main Property Image (Thumbnail) <span className="text-gray-400 font-normal">(max 10MB)</span></label>
         {imagePreview ? (
-          <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 h-48 w-full sm:w-1/2">
+          <div className="relative overflow-hidden border border-gray-200 bg-gray-50 h-48 w-full sm:w-1/2">
             <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
             <button
               type="button"
@@ -836,7 +878,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => document.getElementById("main-image-upload").click()}
-            className="w-full sm:w-1/2 py-10 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
+            className="w-full sm:w-1/2 py-10 border-2 border-dashed border-gray-300 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
           >
             <BsCloudUpload className="text-3xl text-gray-400" />
             <p className="text-sm text-gray-500 font-medium">Click or drag main image here</p>
@@ -861,7 +903,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
             onDrop={handleAuxDrop}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => document.getElementById("aux-images-upload").click()}
-            className="w-full py-8 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
+            className="w-full py-8 border-2 border-dashed border-gray-300 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
           >
             <BsCloudUpload className="text-2xl text-gray-400" />
             <p className="text-sm text-gray-500 font-medium">Click or drag & drop multiple files here</p>
@@ -881,7 +923,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {/* Existing Ones */}
             {existingAuxImages.map((url, idx) => (
-              <div key={`existing-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
+              <div key={`existing-${idx}`} className="relative aspect-square overflow-hidden border border-gray-200 bg-gray-50 group">
                 <img src={url} alt={`Existing Aux ${idx}`} className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -891,13 +933,13 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                 >
                   <BsTrash size={14} />
                 </button>
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm text-white text-[10px] rounded-full font-medium">Saved</div>
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium">Saved</div>
               </div>
             ))}
             
             {/* New Previews */}
             {auxImagePreviews.map((preview, idx) => (
-              <div key={`new-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border border-accent/30 bg-gray-50 group">
+              <div key={`new-${idx}`} className="relative aspect-square overflow-hidden border border-accent/30 bg-gray-50 group">
                 <img src={preview} alt={`New Aux ${idx}`} className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -907,7 +949,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                 >
                   <BsXCircleFill size={14} />
                 </button>
-                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-accent text-white text-[10px] rounded-full font-medium">New</div>
+                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-accent text-white text-[10px] font-medium">New</div>
               </div>
             ))}
           </div>
@@ -921,7 +963,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
             type="button"
             onClick={generateDescription}
             disabled={generatingDesc}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent bg-accent/10 hover:bg-accent/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-wait"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent bg-accent/10 hover:bg-accent/20 px-3 py-1.5 transition-colors disabled:opacity-60 disabled:cursor-wait"
           >
             <BsStars className={generatingDesc ? "animate-pulse" : ""} />
             {generatingDesc ? "Writing…" : "Generate with AI"}
@@ -930,7 +972,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <textarea
           name="description" value={form.description} onChange={handleChange}
           rows={3} placeholder="Detailed description of the property..."
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
         />
       </div>
 
@@ -939,7 +981,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <textarea 
           name="features" value={form.features} onChange={handleChange}
           rows={4} placeholder="Smart Home-Ready Design&#10;24/7 Security&#10;Swimming Pool"
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
         />
       </div>
 
@@ -948,7 +990,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <input 
           type="text" name="video_placeholder" value={form.video_placeholder} onChange={handleChange}
           placeholder="e.g. https://www.youtube.com/watch?v=abc123"
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
         />
         <p className="text-xs text-gray-400">Supports youtube.com/watch, youtu.be, and embed links</p>
       </div>
@@ -958,7 +1000,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <input 
           type="text" name="map_embed" value={form.map_embed} onChange={handleChange}
           placeholder="Paste Google Maps iframe code or src URL here"
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
         />
       </div>
 
@@ -967,14 +1009,14 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
         <button
           type="button"
           onClick={() => setShowProjectDetails(!showProjectDetails)}
-          className="w-full flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors"
+          className="w-full flex items-center justify-between py-3 px-4 bg-gray-50 text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors"
         >
           <span>📋 Project Details (Plot Types, Payment Plans, Bank Info)</span>
           <span className="text-gray-400">{showProjectDetails ? "▲" : "▼"}</span>
         </button>
 
         {showProjectDetails && (
-          <div className="space-y-6 mt-6 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+          <div className="space-y-6 mt-6 p-4 bg-gray-50/50 border border-gray-100">
             {/* Developer & Supported By */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2">
@@ -982,7 +1024,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                 <input
                   type="text" name="developer" value={form.developer} onChange={handleChange}
                   placeholder="e.g. Andreams Global Properties Ltd"
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
               </div>
               <div className="space-y-2">
@@ -990,7 +1032,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                 <input
                   type="text" name="supported_by" value={form.supported_by} onChange={handleChange}
                   placeholder="e.g. Brook Fields Company"
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
               </div>
             </div>
@@ -1001,7 +1043,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
               <input
                 type="text" name="registration_fee" value={form.registration_fee} onChange={handleChange}
                 placeholder="e.g. ₦10,000"
-                className="w-full sm:w-1/2 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+                className="w-full sm:w-1/2 px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
               />
             </div>
 
@@ -1013,27 +1055,27 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                   <input
                     placeholder="Type (e.g. 4-Bed Duplex)"
                     value={plot.type} onChange={(e) => { const n = [...plotTypes]; n[idx].type = e.target.value; setPlotTypes(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-2"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-2"
                   />
                   <input
                     placeholder="Size (e.g. 840 sqm)"
                     value={plot.size} onChange={(e) => { const n = [...plotTypes]; n[idx].size = e.target.value; setPlotTypes(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                   />
                   <input
                     placeholder="Units"
                     value={plot.units} onChange={(e) => { const n = [...plotTypes]; n[idx].units = e.target.value; setPlotTypes(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                   />
                   <div className="flex gap-2">
                     <input
                       placeholder="Price"
                       value={plot.price} onChange={(e) => { const n = [...plotTypes]; n[idx].price = e.target.value; setPlotTypes(n); }}
-                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                     />
                     {plotTypes.length > 1 && (
                       <button type="button" onClick={() => setPlotTypes(plotTypes.filter((_, i) => i !== idx))}
-                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 text-sm"
                       >✕</button>
                     )}
                   </div>
@@ -1052,22 +1094,22 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                   <input
                     placeholder="Size (e.g. 500 sqm)"
                     value={sp.size} onChange={(e) => { const n = [...servicePlots]; n[idx].size = e.target.value; setServicePlots(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                   />
                   <input
                     placeholder="House Type (e.g. 4-Bed Duplex)"
                     value={sp.house_type} onChange={(e) => { const n = [...servicePlots]; n[idx].house_type = e.target.value; setServicePlots(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-1 sm:col-span-2"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-1 sm:col-span-2"
                   />
                   <div className="flex gap-2">
                     <input
                       placeholder="Price"
                       value={sp.price} onChange={(e) => { const n = [...servicePlots]; n[idx].price = e.target.value; setServicePlots(n); }}
-                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                     />
                     {servicePlots.length > 1 && (
                       <button type="button" onClick={() => setServicePlots(servicePlots.filter((_, i) => i !== idx))}
-                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 text-sm"
                       >✕</button>
                     )}
                   </div>
@@ -1084,7 +1126,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
               <textarea
                 name="payment_options" value={form.payment_options} onChange={handleChange}
                 rows={4} placeholder={"Outright Full Payment (5% discount)\nDown Payment: 40%\nInstallmental: 50%, 30% & 20% within 1 year\nRegistration Fee: ₦10,000"}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y text-sm"
+                className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y text-sm"
               />
             </div>
 
@@ -1096,22 +1138,22 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                   <input
                     placeholder="Bank Name"
                     value={bd.bank} onChange={(e) => { const n = [...bankDetails]; n[idx].bank = e.target.value; setBankDetails(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                   />
                   <input
                     placeholder="Account Name"
                     value={bd.account_name} onChange={(e) => { const n = [...bankDetails]; n[idx].account_name = e.target.value; setBankDetails(n); }}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-1 sm:col-span-2"
+                    className="px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 col-span-1 sm:col-span-2"
                   />
                   <div className="flex gap-2">
                     <input
                       placeholder="Account No"
                       value={bd.account_no} onChange={(e) => { const n = [...bankDetails]; n[idx].account_no = e.target.value; setBankDetails(n); }}
-                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                     />
                     {bankDetails.length > 1 && (
                       <button type="button" onClick={() => setBankDetails(bankDetails.filter((_, i) => i !== idx))}
-                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                        className="px-2 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 text-sm"
                       >✕</button>
                     )}
                   </div>
@@ -1138,7 +1180,7 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
                           setForm(prev => ({ ...prev, facilities: prev.facilities.filter(f => f !== facility) }));
                         }
                       }}
-                      className="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent"
+                      className="w-4 h-4 border-gray-300 text-accent focus:ring-accent"
                     />
                     {facility}
                   </label>
@@ -1152,13 +1194,13 @@ function PropertyForm({ property = null, onSuccess, onClose }) {
       <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
         <button 
           type="button" onClick={onClose}
-          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
         >
           Cancel
         </button>
         <button 
           type="submit" disabled={saving}
-          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-70"
+          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold hover:bg-primary-light transition-colors shadow-sm disabled:opacity-70"
         >
           {saving ? "Saving..." : isEditing ? "Save Changes" : "Create Property"}
         </button>

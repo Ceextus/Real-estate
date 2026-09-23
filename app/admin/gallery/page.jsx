@@ -98,7 +98,7 @@ export default function AdminGallery() {
         </div>
         <button 
           onClick={() => setIsUploadModalOpen(true)}
-          className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
+          className="bg-primary hover:bg-primary-light text-white px-6 py-3 font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
         >
           <BsPlusLg strokeWidth={1} />
           Upload Images
@@ -106,13 +106,13 @@ export default function AdminGallery() {
       </div>
 
       {/* Categories / Filters */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto hide-scrollbar">
+      <div className="bg-white p-4 shadow-sm border border-gray-100 overflow-x-auto hide-scrollbar">
         <div className="flex gap-2">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-6 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
                 activeCategory === category
                   ? "bg-accent text-white shadow-sm"
                   : "bg-gray-50 text-gray-600 hover:bg-gray-100"
@@ -130,7 +130,7 @@ export default function AdminGallery() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredGallery.map((image) => (
-            <div key={image.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm">
+            <div key={image.id} className="group relative aspect-square overflow-hidden bg-gray-100 border border-gray-100 shadow-sm">
               <Image 
                 src={image.url} 
                 alt={image.caption || `Gallery image`} 
@@ -141,7 +141,7 @@ export default function AdminGallery() {
               {/* Overlay - always visible on mobile, hover on desktop */}
               <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent md:bg-black/50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
                 <div className="flex justify-between items-start">
-                  <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1 rounded-full text-xs font-bold leading-none shadow-sm">
+                  <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1 text-xs font-bold leading-none shadow-sm">
                     {image.category}
                   </span>
                   <button 
@@ -162,7 +162,7 @@ export default function AdminGallery() {
           {/* Upload Placeholder inside Grid */}
           <div 
             onClick={() => setIsUploadModalOpen(true)}
-            className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center text-center p-6 hover:bg-accent/5 hover:border-accent hover:text-accent transition-colors group cursor-pointer"
+            className="aspect-square border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center text-center p-6 hover:bg-accent/5 hover:border-accent hover:text-accent transition-colors group cursor-pointer"
           >
             <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
               <BsPlusLg className="text-2xl text-gray-400 group-hover:text-white" />
@@ -174,7 +174,7 @@ export default function AdminGallery() {
       )}
 
       {!loading && filteredGallery.length === 0 && (
-        <div className="py-12 text-center text-gray-500 bg-white rounded-2xl border border-gray-100">
+        <div className="py-12 text-center text-gray-500 bg-white border border-gray-100">
           No images found in this category.
         </div>
       )}
@@ -201,20 +201,20 @@ export default function AdminGallery() {
             <p className="text-gray-600">
               Are you sure you want to permanently delete this <strong className="text-gray-900">{selectedImage.category.toLowerCase()}</strong> image? This action cannot be undone.
             </p>
-            <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-200">
+            <div className="relative w-full h-48 overflow-hidden border border-gray-200">
                <Image src={selectedImage.url} alt="To delete" fill className="object-cover" />
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
                <button 
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleDelete}
                 disabled={deleting}
-                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm disabled:opacity-70"
+                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm disabled:opacity-70"
               >
                 {deleting ? "Deleting..." : "Delete Image"}
               </button>
@@ -339,7 +339,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
     <form className="space-y-5" onSubmit={handleSubmit}>
       
       {error && (
-        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{error}</div>
+        <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm">{error}</div>
       )}
 
       {/* Image Upload Area */}
@@ -348,7 +348,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
           <label className="text-sm font-semibold text-gray-700 block mb-1">Images <span className="text-gray-400 font-normal">(max 10MB each)</span></label>
           <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}
             onClick={() => document.getElementById("gallery-images-upload").click()}
-            className="w-full py-8 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 flex flex-col items-center justify-center text-center hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer group">
+            className="w-full py-8 border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-center hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer group">
             <BsCloudUpload className="text-4xl text-gray-300 mb-2 group-hover:text-accent/50 transition-colors" />
             <h3 className="text-base font-bold text-gray-900 mb-1">Click or drag images here</h3>
             <p className="text-xs text-gray-500">Supports JPG, PNG, WEBP (multiple allowed)</p>
@@ -361,7 +361,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
         {imagePreviews.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {imagePreviews.map((preview, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-accent/30 bg-gray-50 group">
+              <div key={idx} className="relative aspect-square overflow-hidden border border-accent/30 bg-gray-50 group">
                 <img src={preview} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -382,7 +382,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
         <select 
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
           required
         >
           <option value="">Select a category...</option>
@@ -399,7 +399,7 @@ function UploadForm({ onSuccess, onClose, categories }) {
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           placeholder="e.g. Modern exterior design"
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
         />
       </div>
 
@@ -407,14 +407,14 @@ function UploadForm({ onSuccess, onClose, categories }) {
         <button 
           type="button"
           onClick={onClose}
-          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
         >
           Cancel
         </button>
         <button 
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-70"
+          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold hover:bg-primary-light transition-colors shadow-sm disabled:opacity-70"
         >
           {saving ? "Uploading..." : "Upload Images"}
         </button>

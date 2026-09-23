@@ -184,7 +184,7 @@ export default function SettingsPage() {
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            className="bg-primary hover:bg-primary-light text-white px-6 py-3 font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isSaving ? (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -204,7 +204,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Settings Container */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+      <div className="bg-white shadow-sm border border-gray-100 overflow-hidden flex flex-col md:flex-row min-h-[600px]">
         
         {/* Left Sidebar Tabs */}
         <div className="w-full md:w-64 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-100 p-4 md:p-6 flex flex-row md:flex-col gap-2 overflow-x-auto hide-scrollbar">
@@ -212,7 +212,7 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap md:whitespace-normal text-left ${
+              className={`flex items-center gap-3 px-4 py-3.5 font-medium text-sm transition-all whitespace-nowrap md:whitespace-normal text-left ${
                 activeTab === tab.id
                   ? "bg-white text-primary shadow-sm ring-1 ring-gray-100"
                   : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                       type="text" 
                       value={general.headline}
                       onChange={(e) => handleGeneralChange("headline", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
                     />
                   </div>
                   <div>
@@ -248,7 +248,7 @@ export default function SettingsPage() {
                       rows={2}
                       value={general.subheadline}
                       onChange={(e) => handleGeneralChange("subheadline", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors resize-none"
                     />
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                       rows={5}
                       value={general.about_text}
                       onChange={(e) => handleGeneralChange("about_text", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors resize-none"
                     />
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export default function SettingsPage() {
                       type="text" 
                       value={contact.phone1}
                       onChange={(e) => handleContactChange("phone1", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
                     />
                   </div>
                   <div>
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                       type="text" 
                       value={contact.phone2}
                       onChange={(e) => handleContactChange("phone2", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
                     />
                   </div>
                   <div>
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                       type="email" 
                       value={contact.email_support}
                       onChange={(e) => handleContactChange("email_support", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
                     />
                   </div>
                   <div>
@@ -311,7 +311,7 @@ export default function SettingsPage() {
                       type="email" 
                       value={contact.email_inquiry}
                       onChange={(e) => handleContactChange("email_inquiry", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
                     />
                   </div>
                   <div className="col-span-1 md:col-span-2">
@@ -320,18 +320,18 @@ export default function SettingsPage() {
                       rows={3}
                       value={contact.address}
                       onChange={(e) => handleContactChange("address", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors resize-none"
                     />
                   </div>
                   <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Google Maps Embed URL</label>
-                    <p className="text-xs text-gray-400 mb-2">Go to Google Maps → find your location → click Share → Embed a map → copy the <code className="bg-gray-100 px-1 rounded">src</code> URL from the iframe code.</p>
+                    <p className="text-xs text-gray-400 mb-2">Go to Google Maps → find your location → click Share → Embed a map → copy the <code className="bg-gray-100 px-1">src</code> URL from the iframe code.</p>
                     <input 
                       type="url" 
                       value={contact.map_embed || ""}
                       onChange={(e) => handleContactChange("map_embed", e.target.value)}
                       placeholder="https://www.google.com/maps/embed?pb=..."
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors font-mono text-sm"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors font-mono text-sm"
                     />
                   </div>
                 </div>
@@ -353,7 +353,7 @@ export default function SettingsPage() {
                         value={contact.socials?.[social.key] || ""}
                         onChange={(e) => handleSocialChange(social.key, e.target.value)}
                         placeholder="https://"
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
                       />
                     </div>
                   ))}
@@ -372,7 +372,7 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   
                   {/* Primary Color Picker */}
-                  <div className="bg-gray-50 p-5 rounded-2xl border border-gray-200">
+                  <div className="bg-gray-50 p-5 border border-gray-200">
                     <label className="block text-sm font-bold text-gray-800 mb-4">Primary Brand Color</label>
                     <div className="flex items-center gap-4">
                       <div 
@@ -385,14 +385,14 @@ export default function SettingsPage() {
                           type="text" 
                           value={theme.primary_color}
                           onChange={(e) => handleThemeChange("primary_color", e.target.value)}
-                          className="w-full font-mono text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none" 
+                          className="w-full font-mono text-sm px-3 py-2 bg-white border border-gray-200 focus:outline-none" 
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Accent Color Picker */}
-                  <div className="bg-gray-50 p-5 rounded-2xl border border-gray-200">
+                  <div className="bg-gray-50 p-5 border border-gray-200">
                     <label className="block text-sm font-bold text-gray-800 mb-4">Accent/Highlight Color</label>
                     <div className="flex items-center gap-4">
                       <div 
@@ -405,7 +405,7 @@ export default function SettingsPage() {
                           type="text" 
                           value={theme.accent_color}
                           onChange={(e) => handleThemeChange("accent_color", e.target.value)}
-                          className="w-full font-mono text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none" 
+                          className="w-full font-mono text-sm px-3 py-2 bg-white border border-gray-200 focus:outline-none" 
                         />
                       </div>
                     </div>
@@ -425,11 +425,11 @@ export default function SettingsPage() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {(media.hero_images || []).map((url, index) => (
-                    <div key={index} className="border border-gray-200 rounded-2xl overflow-hidden group relative">
+                    <div key={index} className="border border-gray-200 overflow-hidden group relative">
                       <div className="h-40 bg-gray-100 relative">
                         <Image src={url} alt={`Slide ${index + 1}`} fill className="object-cover" />
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
-                          <label className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-100 cursor-pointer">
+                          <label className="bg-white text-gray-900 px-4 py-2 text-sm font-bold hover:bg-gray-100 cursor-pointer">
                             Replace
                             <input 
                               type="file" 
@@ -456,7 +456,7 @@ export default function SettingsPage() {
                           </label>
                           <button 
                             onClick={() => removeHeroImage(index)}
-                            className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-red-600"
+                            className="bg-red-500 text-white px-4 py-2 text-sm font-bold hover:bg-red-600"
                           >
                             Remove
                           </button>
@@ -470,7 +470,7 @@ export default function SettingsPage() {
                   ))}
                   
                   {/* Add New Slide */}
-                  <label className="border-2 border-dashed border-gray-300 rounded-2xl h-full flex flex-col items-center justify-center min-h-[220px] hover:border-accent hover:bg-accent/5 transition-colors group cursor-pointer">
+                  <label className="border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center min-h-[220px] hover:border-accent hover:bg-accent/5 transition-colors group cursor-pointer">
                     <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-accent/10 flex items-center justify-center mb-3">
                       <span className="text-2xl text-gray-400 group-hover:text-accent">+</span>
                     </div>

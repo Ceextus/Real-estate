@@ -193,6 +193,7 @@ function PinnedServices() {
                   loop
                   playsInline
                   preload="none"
+                  poster="/images/construction-progress.jpg"
                   className="h-full w-full object-cover"
                 >
                   <source src="/images/rs.mp4" type="video/mp4" />
@@ -200,11 +201,11 @@ function PinnedServices() {
               </MediaLayer>
               <MediaLayer show={service.group === "sell"}>
                 <Image
-                  src="/images/modern-architecture-building-with-geometric-facade-clean-lines-clear-sky.jpg"
-                  alt="Modern residential building facade"
+                  src="/images/construction-progress11.jpg"
+                  alt="A finished Andreams Homes bungalow"
                   fill
                   sizes="60vw"
-                  className="object-cover object-[80%_70%]"
+                  className="object-cover object-center"
                 />
               </MediaLayer>
               <MediaLayer show={service.group === "manage"}>

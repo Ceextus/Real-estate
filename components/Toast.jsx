@@ -42,7 +42,7 @@ export function ToastProvider({ children }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border backdrop-blur-md animate-slide-in-up min-w-[280px] max-w-[400px] ${
+            className={`pointer-events-auto flex items-center gap-3 px-5 py-4 shadow-2xl border backdrop-blur-md animate-slide-in-up min-w-[280px] max-w-[400px] ${
               t.type === "success"
                 ? "bg-green-50 border-green-200 text-green-800"
                 : "bg-red-50 border-red-200 text-red-800"

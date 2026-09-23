@@ -89,7 +89,7 @@ export default function AdminMessages() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Messages
             {unreadCount > 0 && (
-              <span className="ml-3 text-sm bg-accent text-white px-2.5 py-1 rounded-full align-middle">
+              <span className="ml-3 text-sm bg-accent text-white px-2.5 py-1 align-middle">
                 {unreadCount} new
               </span>
             )}
@@ -105,7 +105,7 @@ export default function AdminMessages() {
             placeholder="Search messages..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-white shadow-sm border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
+            className="w-full pl-11 pr-4 py-2.5 bg-white shadow-sm border border-gray-100 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
           />
         </div>
 
@@ -115,7 +115,7 @@ export default function AdminMessages() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === tab 
                   ? "bg-gray-900 text-white shadow-sm"
                   : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
@@ -135,7 +135,7 @@ export default function AdminMessages() {
               <button
                 key={msg.id}
                 onClick={() => handleSelectMessage(msg)}
-                className={`w-full text-left p-4 rounded-2xl border transition-all ${
+                className={`w-full text-left p-4 border transition-all ${
                   selectedMessage === msg.id
                     ? "bg-primary text-white border-primary shadow-md transform scale-[1.02]"
                     : `bg-white border-gray-100 hover:border-gray-300 hover:shadow-sm ${msg.status === "unread" ? "border-l-4 border-l-accent" : ""}`
@@ -145,7 +145,7 @@ export default function AdminMessages() {
                   <span className={`font-bold truncate pr-3 ${selectedMessage === msg.id ? "text-white" : "text-gray-900"}`}>
                     {msg.name}
                   </span>
-                  <span className={`text-[10px] font-bold uppercase whitespace-nowrap px-2 py-0.5 rounded-full ${
+                  <span className={`text-[10px] font-bold uppercase whitespace-nowrap px-2 py-0.5 ${
                     msg.status === "unread" 
                       ? selectedMessage === msg.id ? "bg-white/20 text-white" : "bg-accent/10 text-accent"
                       : selectedMessage === msg.id ? "bg-white/10 text-white/70" : "bg-gray-100 text-gray-500"
@@ -164,7 +164,7 @@ export default function AdminMessages() {
           )}
 
           {!loading && filteredMessages.length === 0 && (
-            <div className="p-8 text-center bg-gray-50 border border-gray-100 rounded-2xl border-dashed">
+            <div className="p-8 text-center bg-gray-50 border border-gray-100 border-dashed">
               <BsEnvelopeFill className="text-4xl text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 text-sm font-medium">No messages found.</p>
             </div>
@@ -173,7 +173,7 @@ export default function AdminMessages() {
       </div>
 
       {/* Right Column: Message Detail View */}
-      <div className={`flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex-col h-[700px] lg:h-auto ${selectedMessage ? "flex" : "hidden lg:flex"}`}>
+      <div className={`flex-1 bg-white shadow-sm border border-gray-100 overflow-hidden flex-col h-[700px] lg:h-auto ${selectedMessage ? "flex" : "hidden lg:flex"}`}>
         {currentMsg ? (
           <>
             {/* Detail Header */}
@@ -228,7 +228,7 @@ export default function AdminMessages() {
                     <p className="font-bold text-gray-900">{currentMsg.name}</p>
                     <p className="text-sm text-gray-500">&lt;{currentMsg.email}&gt;{currentMsg.phone ? ` • ${currentMsg.phone}` : ""}</p>
                   </div>
-                  <span className="text-xs font-semibold text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm w-fit">
+                  <span className="text-xs font-semibold text-gray-400 bg-white px-3 py-1 border border-gray-100 shadow-sm w-fit">
                     {new Date(currentMsg.created_at).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })}
                   </span>
                 </div>
@@ -238,7 +238,7 @@ export default function AdminMessages() {
             {/* Detail Body */}
             <div className="p-6 md:p-8 flex-1 overflow-y-auto bg-white">
               {currentMsg.interest && (
-                <div className="mb-4 inline-block px-3 py-1 bg-accent/10 text-accent text-xs font-bold rounded-full uppercase tracking-wider">
+                <div className="mb-4 inline-block px-3 py-1 bg-accent/10 text-accent text-xs font-bold uppercase tracking-wider">
                   {currentMsg.interest === "buy" ? "Buying" : currentMsg.interest === "build" ? "Building" : currentMsg.interest === "invest" ? "Investment" : "Consultation"}
                 </div>
               )}
@@ -251,14 +251,14 @@ export default function AdminMessages() {
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">
               <a 
                 href={`mailto:${currentMsg.email}?subject=Re: ${currentMsg.subject || "Your Inquiry"}`}
-                className="bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md"
+                className="bg-primary hover:bg-primary-light text-white px-6 py-2.5 text-sm font-bold flex items-center gap-2 transition-all shadow-md"
               >
                 Reply via Email
               </a>
               {currentMsg.phone && (
                 <a 
                   href={`tel:${currentMsg.phone}`}
-                  className="bg-white hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-xl text-sm font-bold border border-gray-200 flex items-center gap-2 transition-all"
+                  className="bg-white hover:bg-gray-50 text-gray-700 px-6 py-2.5 text-sm font-bold border border-gray-200 flex items-center gap-2 transition-all"
                 >
                   Call Back
                 </a>

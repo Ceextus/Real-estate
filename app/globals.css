@@ -87,6 +87,23 @@ body {
   }
 }
 
+/* Dashed road line that slides left, used by the site inspection section */
+@keyframes road {
+  to {
+    transform: translateX(-56px);
+  }
+}
+
+.animate-road {
+  animation: road 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-road {
+    animation: none;
+  }
+}
+
 /* Indeterminate progress line used by the public route loader */
 @keyframes loaderBar {
   0% {

@@ -1,48 +1,77 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
+import { HiMenuAlt2, HiOutlineExternalLink } from "react-icons/hi";
 import AdminSidebar from "@/components/AdminSidebar";
-import { HiMenu, HiX } from "react-icons/hi";
 import { ToastProvider } from "@/components/Toast";
 
 export default function AdminLayoutClient({ children, email }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const initial = (email?.[0] ?? "A").toUpperCase();
 
   return (
     <ToastProvider>
-      <div className="flex min-h-screen bg-gray-50 font-sans">
-        
-        {/* Mobile Sidebar Overlay */}
-        {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
+      <div className="flex min-h-screen overflow-x-clip bg-canvas font-sans">
+        {/* Mobile sidebar overlay */}
+        <AnimatePresence>
+          {isSidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-primary/40 backdrop-blur-sm lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
 
-        {/* Sidebar - hidden on mobile unless open, visible on desktop */}
-        <div className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        {/* Sidebar: drawer on mobile, pinned on desktop */}
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 shrink-0 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
           <AdminSidebar onMobileClick={() => setIsSidebarOpen(false)} />
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0 w-full lg:w-auto">
-          {/* Top Header */}
-          <header className="h-20 bg-primary border-b border-gray-100 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
-            <div className="flex items-center gap-4">
-              <button 
-                className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* Top bar */}
+          <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b border-line bg-canvas/85 px-4 backdrop-blur-xl sm:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                className="-ml-2 p-2 text-primary lg:hidden"
                 onClick={() => setIsSidebarOpen(true)}
+                aria-label="Open menu"
               >
-                <HiMenu className="text-2xl text-white" />
+                <HiMenuAlt2 className="text-2xl" />
               </button>
-              <h2 className="text-lg sm:text-xl font-bold text-white">Admin </h2>
+              {/* The page heading names the section; the bar just orients (no repeated title) */}
+              <p className="truncate text-[11px] uppercase tracking-[0.18em] text-ink-soft">
+                Andreams Homes <span className="text-accent">·</span> Admin portal
+              </p>
             </div>
-            <span className="text-xs sm:text-sm text-white truncate max-w-[150px] sm:max-w-none">{email}</span>
+
+            <div className="flex items-center gap-3 sm:gap-5">
+              <Link
+                href="/"
+                target="_blank"
+                className="hidden sm:inline-flex items-center gap-1.5 border border-primary/15 px-3 py-2 text-[13px] text-primary transition-colors hover:border-primary/40"
+              >
+                View site
+                <HiOutlineExternalLink className="text-sm" />
+              </Link>
+              <div className="flex items-center gap-2.5">
+                <span className="hidden md:block max-w-56 truncate text-[13px] text-ink-soft">{email}</span>
+                <span className="flex h-9 w-9 items-center justify-center bg-primary text-sm font-medium text-white" aria-hidden>
+                  {initial}
+                </span>
+              </div>
+            </div>
           </header>
-          
-          <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
-            {children}
-          </main>
+
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8">{children}</main>
         </div>
       </div>
     </ToastProvider>

@@ -9,6 +9,7 @@ import { Reveal, WordReveal, EASE } from "@/components/motion/Reveal";
 import { CountUp } from "@/components/motion/CountUp";
 import StorySection from "@/components/about/StorySection";
 import TeamSection from "@/components/about/TeamSection";
+import CommunityGallery from "@/components/about/CommunityGallery";
 
 const stats = [
   { value: 9, label: "Projects" },
@@ -356,7 +357,13 @@ function Community() {
           </div>
         </div>
 
-        <ol className="lg:col-span-7 border-t border-line">
+        <div className="lg:col-span-7">
+          {/* Photos from the Andreams Annual Humanitarian Service — tap to browse all */}
+          <CommunityGallery />
+          <Reveal delay={0.1} as="p" className="mt-3 mb-10 text-[11px] uppercase tracking-[0.16em] text-ink-soft">
+            Andreams Annual Humanitarian Service
+          </Reveal>
+        <ol className="border-t border-line">
           {programmes.map((p, i) => (
             <Reveal
               as="li"
@@ -375,6 +382,7 @@ function Community() {
             </Reveal>
           ))}
         </ol>
+        </div>
       </div>
     </section>
   );

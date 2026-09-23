@@ -1,3 +1,4 @@
+import Image from "next/image";
 import ContactForm from "@/components/ContactForm";
 import { BsArrowUpRight } from "react-icons/bs";
 import { createClient } from "@/utils/supabase/server";
@@ -190,7 +191,7 @@ export default async function ContactPage() {
 
         {/* Map */}
         <section className="mt-24 md:mt-32">
-          <Reveal className="group relative h-[60vh] min-h-105 max-h-160 overflow-hidden border-y border-line bg-surface">
+          <Reveal className="group relative h-[64vh] min-h-130 max-h-170 overflow-hidden border-y border-line bg-surface">
             <iframe
               src={mapSrc}
               title="Andreams Homes Office Location — Asokoro, Abuja"
@@ -205,6 +206,9 @@ export default async function ContactPage() {
 
             <div className="pointer-events-none absolute inset-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-end sm:items-center sm:justify-end pb-5 sm:pb-0">
               <div className="pointer-events-auto w-full sm:w-80 border border-line bg-canvas p-6 shadow-[0_24px_50px_-24px_rgba(11,29,58,0.45)]">
+                <div className="relative -mx-6 -mt-6 mb-5 hidden sm:block aspect-4/3 overflow-hidden bg-surface">
+                  <Image src="/images/office-exterior.jpg" alt="Andreams Global Properties head office" fill sizes="320px" className="object-cover object-[center_35%]" />
+                </div>
                 <p className="text-[11px] uppercase tracking-[0.16em] text-accent">Visit our head office</p>
                 <p className="mt-3 font-display font-bold text-2xl leading-snug text-primary">
                   {addressParts.slice(0, 2).join(",").trim()}

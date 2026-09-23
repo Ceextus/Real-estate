@@ -9,9 +9,9 @@ import { Reveal, WordReveal, EASE } from "@/components/motion/Reveal";
 // Three photos start stacked in the centre, then fan out to the right when the banner scrolls in.
 const photos = [
   {
-    src: "/images/modern-architecture-building-with-geometric-facade-clean-lines-clear-sky.jpg",
-    alt: "Modern residential building facade",
-    className: "object-[75%_60%]",
+    src: "/images/office-exterior.jpg",
+    alt: "Andreams Global Properties office building",
+    className: "object-center",
     to: { x: "-58%", y: "6%", rotate: -6, scale: 0.84 },
   },
   {
@@ -21,9 +21,9 @@ const photos = [
     to: { x: "-4%", y: "1%", rotate: -1.5, scale: 0.92 },
   },
   {
-    src: "/images/ceo.jpg",
-    alt: "Andreams Global Properties chairman",
-    className: "object-[70%_center]",
+    src: "/images/key-handover.jpg",
+    alt: "The Andreams chairman presenting a branded gift to a guest",
+    className: "object-[65%_center]",
     to: { x: "48%", y: "-4%", rotate: 3, scale: 1.04 },
   },
 ];

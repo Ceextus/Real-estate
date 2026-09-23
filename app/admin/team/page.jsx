@@ -109,7 +109,7 @@ export default function AdminTeam() {
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
+          className="bg-primary hover:bg-primary-light text-white px-6 py-3 font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
         >
           <BsPlusLg strokeWidth={1} />
           Add Team Member
@@ -117,7 +117,7 @@ export default function AdminTeam() {
       </div>
 
       {/* Search */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <div className="bg-white p-4 shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative w-full sm:w-96">
           <BsSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -125,7 +125,7 @@ export default function AdminTeam() {
             placeholder="Search by name or role..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
+            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
           />
         </div>
       </div>
@@ -138,12 +138,12 @@ export default function AdminTeam() {
           {filteredMembers.map((member) => (
             <div
               key={member.id}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-md transition-shadow relative"
+              className="bg-white p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-md transition-shadow relative"
             >
               {/* Status Badge */}
               <div className="absolute top-4 right-4">
                 <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  className={`inline-flex items-center px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
                     member.status === "Active"
                       ? "bg-green-100 text-green-700"
                       : "bg-amber-100 text-amber-700"
@@ -175,14 +175,14 @@ export default function AdminTeam() {
               <div className="flex w-full gap-2 mt-auto pt-6 border-t border-gray-100">
                 <button
                   onClick={() => openEditModal(member)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   <BsPencilSquare /> Edit
                 </button>
                 <div className="w-px bg-gray-100 my-2" />
                 <button
                   onClick={() => openDeleteModal(member)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <BsTrash /> Delete
                 </button>
@@ -193,7 +193,7 @@ export default function AdminTeam() {
       )}
 
       {!loading && filteredMembers.length === 0 && (
-        <div className="py-12 text-center text-gray-500 bg-white rounded-2xl border border-gray-100">
+        <div className="py-12 text-center text-gray-500 bg-white border border-gray-100">
           No team members found.
         </div>
       )}
@@ -242,13 +242,13 @@ export default function AdminTeam() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+                className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm"
               >
                 Remove Member
               </button>
@@ -379,7 +379,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       {error && (
-        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+        <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm">
           {error}
         </div>
       )}
@@ -427,7 +427,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => document.getElementById("team-image-upload").click()}
-            className="w-full py-8 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
+            className="w-full py-8 border-2 border-dashed border-gray-300 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col items-center gap-2"
           >
             <BsCloudUpload className="text-3xl text-gray-400" />
             <p className="text-sm text-gray-500 font-medium">
@@ -456,7 +456,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
           onChange={handleChange}
           placeholder="e.g. John Doe"
           required
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
         />
       </div>
 
@@ -472,7 +472,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
             onChange={handleChange}
             placeholder="e.g. Senior Architect"
             required
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
         <div className="space-y-2">
@@ -483,7 +483,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
             name="status"
             value={form.status}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 text-gray-700"
           >
             <option value="Active">Active</option>
             <option value="On Leave">On Leave</option>
@@ -502,7 +502,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
             value={form.email}
             onChange={handleChange}
             placeholder="e.g. john@Andreamshomes.com"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
         <div className="space-y-2">
@@ -515,7 +515,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
             value={form.sort_order}
             onChange={handleChange}
             placeholder="0"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50"
           />
         </div>
       </div>
@@ -533,7 +533,7 @@ function TeamForm({ member = null, onSuccess, onClose }) {
           onChange={handleChange}
           rows={4}
           placeholder="A visionary leader with over two decades of experience..."
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
         />
       </div>
 
@@ -541,14 +541,14 @@ function TeamForm({ member = null, onSuccess, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+          className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-70"
+          className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold hover:bg-primary-light transition-colors shadow-sm disabled:opacity-70"
         >
           {saving ? "Saving..." : isEditing ? "Save Changes" : "Save Member"}
         </button>

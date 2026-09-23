@@ -79,7 +79,7 @@ export default function AdminInspections() {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex flex-wrap items-center gap-3">
           Inspection Bookings
           {pendingCount > 0 && (
-            <span className="text-sm bg-amber-500 text-white px-2.5 py-1 rounded-full align-middle whitespace-nowrap">
+            <span className="text-sm bg-amber-500 text-white px-2.5 py-1 align-middle whitespace-nowrap">
               {pendingCount} pending
             </span>
           )}
@@ -88,7 +88,7 @@ export default function AdminInspections() {
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+      <div className="bg-white p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
         <div className="relative w-full lg:w-96">
           <BsSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -96,7 +96,7 @@ export default function AdminInspections() {
             placeholder="Search by name, property, or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
+            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors text-sm"
           />
         </div>
         <div className="flex flex-wrap gap-2 w-full lg:w-auto">
@@ -104,7 +104,7 @@ export default function AdminInspections() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex-1 sm:flex-none text-center ${
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex-1 sm:flex-none text-center ${
                 activeTab === tab
                   ? "bg-gray-900 text-white shadow-sm"
                   : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
@@ -120,7 +120,7 @@ export default function AdminInspections() {
       {loading ? (
         <LogoLoader />
       ) : filteredInspections.length === 0 ? (
-        <div className="py-12 text-center bg-white rounded-2xl border border-gray-100">
+        <div className="py-12 text-center bg-white border border-gray-100">
           <BsCalendarEvent className="text-4xl text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500 font-medium">No inspection bookings found.</p>
         </div>
@@ -129,13 +129,13 @@ export default function AdminInspections() {
           {filteredInspections.map((insp) => (
             <div
               key={insp.id}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-bold text-gray-900 text-lg">{insp.name}</h3>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColors[insp.status]}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusColors[insp.status]}`}>
                       {insp.status}
                     </span>
                   </div>
@@ -164,7 +164,7 @@ export default function AdminInspections() {
                   {insp.status === "pending" && (
                     <button
                       onClick={() => updateStatus(insp.id, "confirmed")}
-                      className="px-4 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-xl hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1.5"
                     >
                       <BsCheckCircleFill /> Confirm
                     </button>
@@ -172,7 +172,7 @@ export default function AdminInspections() {
                   {insp.status === "confirmed" && (
                     <button
                       onClick={() => updateStatus(insp.id, "completed")}
-                      className="px-4 py-2 bg-green-50 text-green-600 text-xs font-bold rounded-xl hover:bg-green-100 transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 bg-green-50 text-green-600 text-xs font-bold hover:bg-green-100 transition-colors flex items-center gap-1.5"
                     >
                       <BsCheckCircleFill /> Complete
                     </button>
@@ -180,14 +180,14 @@ export default function AdminInspections() {
                   {(insp.status === "pending" || insp.status === "confirmed") && (
                     <button
                       onClick={() => updateStatus(insp.id, "cancelled")}
-                      className="px-4 py-2 bg-gray-50 text-gray-500 text-xs font-bold rounded-xl hover:bg-red-50 hover:text-red-500 transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 bg-gray-50 text-gray-500 text-xs font-bold hover:bg-red-50 hover:text-red-500 transition-colors flex items-center gap-1.5"
                     >
                       <BsXCircleFill /> Cancel
                     </button>
                   )}
                   <button
                     onClick={() => deleteInspection(insp.id)}
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                     title="Delete"
                   >
                     <BsTrash />
