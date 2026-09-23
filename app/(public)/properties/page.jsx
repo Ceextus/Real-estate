@@ -1,5 +1,4 @@
 import { createClient } from "@/utils/supabase/server";
-import PropertyCard from "@/components/PropertyCard";
 import PropertiesClient from "./PropertiesClient";
 
 export const metadata = {
@@ -15,12 +14,20 @@ export const metadata = {
   },
 };
 
-export default async function PropertiesPage() {
+export default async function PropertiesPage({ searchParams }) {
+  // Filters handed over from the homepage search panel, e.g. /properties?type=Move-In+Ready&q=karu
+  const { type, q } = await searchParams;
   const supabase = await createClient();
   const { data: properties, error } = await supabase
     .from("properties")
     .select("*")
     .order("created_at", { ascending: false });
 
-  return <PropertiesClient properties={properties || []} />;
+  return (
+    <PropertiesClient
+      properties={properties || []}
+      initialFilter={typeof type === "string" ? type : undefined}
+      initialSearch={typeof q === "string" ? q : ""}
+    />
+  );
 }

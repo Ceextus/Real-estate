@@ -1,162 +1,159 @@
 "use client";
 
-import { useState } from "react";
-import PropertyCard from "@/components/PropertyCard";
-import { HiSearch, HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import { Reveal, WordReveal } from "@/components/motion/Reveal";
+import PropertyFilters, { PROPERTY_TYPES, matchesFilters } from "@/components/properties/PropertyFilters";
+import PropertyGrid from "@/components/properties/PropertyGrid";
 
 const ITEMS_PER_PAGE = 9;
 
-export default function PropertiesClient({ properties }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
+export default function PropertiesClient({ properties, initialFilter, initialSearch = "" }) {
+  const [query, setQuery] = useState(initialSearch);
+  const [type, setType] = useState(PROPERTY_TYPES.includes(initialFilter) ? initialFilter : "All");
+  const [page, setPage] = useState(1);
+  const resultsRef = useRef(null);
 
-  const filterOptions = ["All", "Buy & Build", "Move-In Ready", "Investment / Residential"];
+  const matches = useMemo(
+    () =>
+      properties
+        .filter((p) => matchesFilters(p, type, query))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    [properties, type, query]
+  );
 
-  const filteredProperties = properties.filter((property) => {
-    const matchesSearch = 
-      property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = activeFilter === "All" || property.property_type === activeFilter;
+  const totalPages = Math.max(1, Math.ceil(matches.length / ITEMS_PER_PAGE));
+  const start = (page - 1) * ITEMS_PER_PAGE;
+  const visible = matches.slice(start, start + ITEMS_PER_PAGE);
 
-    return matchesSearch && matchesFilter;
-  }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  // Keep the URL in step with the filters so a filtered view can be shared or bookmarked.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (type !== "All") params.set("type", type);
+    if (query.trim()) params.set("q", query.trim());
+    const url = `${window.location.pathname}${params.size ? `?${params}` : ""}`;
+    window.history.replaceState(null, "", url);
+  }, [type, query]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredProperties.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedProperties = filteredProperties.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  // Reset to first page when search or filter changes
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+  const changeType = (t) => {
+    setType(t);
+    setPage(1);
   };
-
-  const handleFilterChange = (option) => {
-    setActiveFilter(option);
-    setCurrentPage(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const changeQuery = (q) => {
+    setQuery(q);
+    setPage(1);
   };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const clear = () => {
+    setType("All");
+    setQuery("");
+    setPage(1);
+  };
+  const goToPage = (p) => {
+    setPage(p);
+    const top = resultsRef.current?.getBoundingClientRect().top + window.scrollY - 120;
+    window.scrollTo({ top, behavior: "smooth" });
   };
 
   return (
-    <main className="min-h-screen bg-primary pt-32 pb-24 selection:bg-accent selection:text-white">
-      
-      {/* Header Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="text-accent text-sm font-bold tracking-widest uppercase mb-4 flex items-center gap-2">
-          <span className="w-8 h-px bg-accent"></span>
-          Our Portfolio
-        </div>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-8">
-          Discover Exceptional <br /> Properties
-        </h1>
-        
-        {/* Search & Filter Bar */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/5 backdrop-blur-md p-4 rounded-3xl shadow-[0_0_20px_rgba(0,0,0,0.2)] border border-white/10">
-          
-          {/* Search Input */}
-          <div className="relative w-full md:max-w-md flex items-center">
-            <HiSearch className="absolute left-4 text-gray-400 text-xl" />
-            <input 
-              type="text"
-              placeholder="Search by name or location..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="w-full bg-black/20 border-none outline-none rounded-2xl py-3 pl-12 pr-4 text-white placeholder:text-white/40 focus:ring-2 focus:ring-accent transition-all"
+    <main className="min-h-screen bg-canvas pt-10 md:pt-16 pb-24 md:pb-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+          <div className="lg:col-span-8">
+            <Reveal onMount className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink-soft">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Our Portfolio
+            </Reveal>
+            <WordReveal
+              as="h1"
+              onMount
+              delay={0.15}
+              lines={[{ text: "Discover exceptional", accent: ["exceptional"] }, "properties"]}
+              className="mt-5 font-display font-bold text-[3.25rem] sm:text-7xl lg:text-[6rem] leading-[0.95] tracking-tight text-primary"
             />
           </div>
+          <Reveal onMount delay={0.45} className="lg:col-span-4 lg:pb-3">
+            <p className="max-w-sm text-sm leading-relaxed text-ink-soft">
+              Browse affordable properties for sale in Abuja and Lagos — duplexes,
+              bungalows, serviced plots and land, with verified C of O titles.
+            </p>
+            <p className="mt-6 text-4xl font-semibold leading-none tracking-tight text-primary tabular-nums">
+              {properties.length}
+              <span className="ml-2 align-middle text-[11px] font-normal uppercase tracking-[0.16em] text-ink-soft">
+                listings
+              </span>
+            </p>
+          </Reveal>
+        </div>
 
-          {/* Filter Pills */}
-          <div className="flex bg-black/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto hide-scrollbar">
-            {filterOptions.map((option) => (
+        {/* Filters */}
+        <Reveal onMount delay={0.55} className="mt-12">
+          <PropertyFilters
+            id="listing"
+            type={type}
+            onType={changeType}
+            query={query}
+            onQuery={changeQuery}
+            onClear={clear}
+            action={
+              <p className="px-3 text-[13px] text-ink-soft whitespace-nowrap" aria-live="polite">
+                <span className="text-primary">{matches.length}</span>{" "}
+                {matches.length === 1 ? "property" : "properties"}
+              </p>
+            }
+          />
+        </Reveal>
+
+        {/* Results */}
+        <div ref={resultsRef} className="mt-12 mb-5 flex items-end justify-between gap-4 text-[13px] text-ink-soft">
+          <p className="text-sm font-medium text-primary">
+            {type === "All" ? "All properties" : type}
+          </p>
+          {matches.length > 0 && (
+            <p className="tabular-nums">
+              {start + 1}–{Math.min(start + ITEMS_PER_PAGE, matches.length)} of {matches.length}
+            </p>
+          )}
+        </div>
+
+        <PropertyGrid items={visible} onClear={clear} gridKey={page} />
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <nav aria-label="Pagination" className="mt-14 flex items-center justify-center gap-2">
+            <button
+              onClick={() => goToPage(Math.max(page - 1, 1))}
+              disabled={page === 1}
+              aria-label="Previous page"
+              className="flex h-11 w-11 items-center justify-center border border-line bg-white text-primary transition-colors hover:border-primary/40 disabled:opacity-30 disabled:hover:border-line"
+            >
+              <HiChevronLeft className="text-lg" />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
               <button
-                key={option}
-                onClick={() => handleFilterChange(option)}
-                className={`shrink-0 px-6 py-2.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 ${
-                  activeFilter === option 
-                    ? "bg-accent text-white shadow-md transform scale-[1.02]" 
-                    : "text-white/60 hover:text-white hover:bg-white/10"
+                key={n}
+                onClick={() => goToPage(n)}
+                aria-current={n === page ? "page" : undefined}
+                className={`h-11 min-w-11 px-3 text-sm tabular-nums transition-colors ${
+                  n === page
+                    ? "bg-primary text-white"
+                    : "border border-line bg-white text-primary hover:border-primary/40"
                 }`}
               >
-                {option}
+                {n}
               </button>
             ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* Properties Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {filteredProperties.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-2 gap-8 xl:gap-12">
-              {paginatedProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-16">
-                <button
-                  onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white disabled:opacity-30 disabled:hover:bg-white/5 transition-all outline-none focus:ring-2 focus:ring-accent/50"
-                  aria-label="Previous Page"
-                >
-                  <HiChevronLeft className="text-xl" />
-                </button>
-
-                <div className="flex items-center gap-2 mx-4 bg-white/5 backdrop-blur-md rounded-full px-4 py-2 border border-white/10">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                        currentPage === page
-                          ? "bg-accent text-white shadow-md transform scale-110"
-                          : "text-white/60 hover:text-white hover:bg-white/10"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white disabled:opacity-30 disabled:hover:bg-white/5 transition-all outline-none focus:ring-2 focus:ring-accent/50"
-                  aria-label="Next Page"
-                >
-                  <HiChevronRight className="text-xl" />
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-20 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.2)]">
-            <div className="text-6xl mb-4 text-white/20">🔍</div>
-            <h3 className="text-2xl font-bold text-white mb-2">No properties found</h3>
-            <p className="text-white/60">We couldn&apos;t find anything matching your search criteria.</p>
-            <button 
-              onClick={() => { setSearchTerm(""); setActiveFilter("All"); setCurrentPage(1); }}
-              className="mt-6 text-accent font-bold hover:text-white transition-colors hover:underline"
+            <button
+              onClick={() => goToPage(Math.min(page + 1, totalPages))}
+              disabled={page === totalPages}
+              aria-label="Next page"
+              className="flex h-11 w-11 items-center justify-center border border-line bg-white text-primary transition-colors hover:border-primary/40 disabled:opacity-30 disabled:hover:border-line"
             >
-              Clear all filters
+              <HiChevronRight className="text-lg" />
             </button>
-          </div>
+          </nav>
         )}
-      </section>
-
+      </div>
     </main>
   );
 }

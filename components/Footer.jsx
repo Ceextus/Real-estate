@@ -1,161 +1,189 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import {
-  BsFacebook,
-  BsTwitterX,
-  BsInstagram,
-  BsLinkedin,
-} from "react-icons/bs";
-import { createClient } from "@/utils/supabase/client";
-
 import Image from "next/image";
+import Link from "next/link";
+import { BsFacebook, BsTwitterX, BsInstagram, BsLinkedin, BsArrowUpRight } from "react-icons/bs";
+import { createStaticClient } from "@/utils/supabase/static";
+import { Reveal, WordReveal } from "@/components/motion/Reveal";
+import { displayPhone, telPhone } from "@/lib/format";
 
 const socialIcons = {
-  facebook: BsFacebook,
-  twitter: BsTwitterX,
-  instagram: BsInstagram,
-  linkedin: BsLinkedin,
+  facebook: { icon: BsFacebook, label: "Facebook" },
+  instagram: { icon: BsInstagram, label: "Instagram" },
+  twitter: { icon: BsTwitterX, label: "X" },
+  linkedin: { icon: BsLinkedin, label: "LinkedIn" },
 };
 
-export default function Footer() {
-  const [socials, setSocials] = useState({
-    facebook: "#",
-    twitter: "#",
-    instagram: "#",
-    linkedin: "#",
-  });
+const explore = [
+  { name: "Home", href: "/" },
+  { name: "About Us", href: "/about" },
+  { name: "Properties", href: "/properties" },
+  // { name: "Blog", href: "/blog" }, // Blog hidden for now
+  { name: "Gallery", href: "/gallery" },
+  { name: "Contact Us", href: "/contact" },
+];
 
-  useEffect(() => {
-    const load = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("site_settings")
-        .select("contact")
-        .eq("id", 1)
-        .single();
+const paymentOptions = [
+  "Outright Full Payment (attracts 5% discount)",
+  "Down Payment: 40%",
+  "Installmental: 50%, 30% & 20% within 1 year",
+  "Registration Fee: ₦10,000",
+];
 
-      if (data?.contact?.socials) {
-        setSocials(data.contact.socials);
-      }
-    };
-    load();
-  }, []);
+// Contact details and social links are managed in Admin → Settings.
+async function getContact() {
+  try {
+    const { data } = await createStaticClient()
+      .from("site_settings")
+      .select("contact")
+      .eq("id", 1)
+      .single();
+    return data?.contact ?? {};
+  } catch {
+    return {};
+  }
+}
 
-  const socialEntries = Object.entries(socials).filter(([, url]) => url);
+
+function ColumnTitle({ children }) {
+  return (
+    <p className="text-[11px] uppercase tracking-[0.18em] text-white/50">{children}</p>
+  );
+}
+
+export default async function Footer() {
+  const contact = await getContact();
+  const phones = [...new Set([contact.phone1, contact.phone2].filter(Boolean))];
+  const emails = [...new Set([contact.email_support, contact.email_inquiry].filter(Boolean))];
+  const socials = Object.entries(contact.socials ?? {}).filter(
+    ([platform, url]) => url && url !== "#" && socialIcons[platform]
+  );
 
   return (
-    <footer className="bg-primary pt-20 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-        {/* Logo */}
-        <div className="flex flex-col items-center gap-6 mb-8">
-          <div className="relative h-16 w-56 lg:h-20 lg:w-64 mb-2">
-            <Image
-              src="/logo.png"
-              alt="Andreams Homes Logo"
-              fill
-              className="object-contain"
+    <footer className="bg-primary">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Closing statement */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-16 md:py-20 items-end border-b border-white/10">
+          <div className="lg:col-span-8">
+            <WordReveal
+              as="p"
+              lines={[
+                "Real estate developers,",
+                { text: "consultancy and valuers.", accent: ["valuers."] },
+              ]}
+              className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-tight text-white"
             />
           </div>
+          <Reveal delay={0.15} className="lg:col-span-4 lg:justify-self-end">
+            <Link
+              href="/contact"
+              className="group inline-flex items-center gap-2 bg-accent px-5 py-3 text-sm text-primary transition-colors duration-300 hover:bg-secondary"
+            >
+              Talk to us
+              <BsArrowUpRight className="text-xs transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          </Reveal>
         </div>
 
-        {/* Center Text */}
-        <p className="text-[#8A96B0] text-center max-w-lg mb-2 font-medium text-lg leading-relaxed">
-          Real Estate Developers, Consultancy and Valuers
-        </p>
-        <p className="text-[#8A96B0]/60 text-center text-sm mb-8 font-medium tracking-wide">
-          WE BUILD · SELL · MANAGE · VALUE PROPERTIES &nbsp;|&nbsp; RC: 1146437
-        </p>
-
-        {/* Social Media Icons */}
-        <div className="flex gap-6 mb-16">
-          {socialEntries.map(([platform, url]) => {
-            const Icon = socialIcons[platform];
-            if (!Icon) return null;
-            return (
-              <Link
-                key={platform}
-                href={url || "#"}
-                target={url && url !== "#" ? "_blank" : undefined}
-                rel={url && url !== "#" ? "noopener noreferrer" : undefined}
-                className="text-white hover:text-accent transition-all hover:scale-110"
-              >
-                <Icon className="text-[1.35rem]" />
-              </Link>
-            );
-          })}
-        </div>
-        {/* Payment Options & Subsidiary */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {/* Payment Options */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Payment Options</h3>
-            <ul className="text-white/60 text-sm space-y-2">
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                Outright Full Payment (attracts 5% discount)
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                Down Payment: 40%
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                Installmental: 50%, 30% &amp; 20% within 1 year
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                Registration Fee: ₦10,000
-              </li>
-            </ul>
-          </div>
-
-          {/* Subsidiary */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Subsidiary Company</h3>
-            <p className="text-white/70 text-sm font-medium mb-3">
-              Andreams Global Sanitation Services Ltd (AGSS)
+        {/* Columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 py-14">
+          <Reveal className="lg:col-span-4">
+            <Link href="/" className="relative block h-16 w-16">
+              <Image src="/logo.png" alt="Andreams Homes Logo" fill sizes="64px" className="object-contain object-left" />
+            </Link>
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/50">
+              We build · Sell · Manage · Value properties
             </p>
-            <div className="flex flex-wrap gap-3">
-              <span className="bg-accent/20 text-accent text-xs font-bold px-3 py-1.5 rounded-full border border-accent/30">
-                Crystal Fresh — Liquid Soap &amp; Disinfectants
-              </span>
-              <span className="bg-accent/20 text-accent text-xs font-bold px-3 py-1.5 rounded-full border border-accent/30">
-                Stainless — Whitener &amp; Disinfectants
-              </span>
-            </div>
-          </div>
+            {socials.length > 0 && (
+              <ul className="mt-6 flex gap-2">
+                {socials.map(([platform, url]) => {
+                  const { icon: Icon, label } = socialIcons[platform];
+                  return (
+                    <li key={platform}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors duration-300 hover:border-accent hover:bg-accent hover:text-primary"
+                      >
+                        <Icon className="text-base" />
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Reveal>
+
+          <Reveal delay={0.05} className="lg:col-span-2">
+            <ColumnTitle>Explore</ColumnTitle>
+            <ul className="mt-4 space-y-2.5">
+              {explore.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-white/75 transition-colors hover:text-accent">
+                    {l.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+
+          <Reveal delay={0.1} className="lg:col-span-3">
+            <ColumnTitle>Contact</ColumnTitle>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {emails.map((e) => (
+                <li key={e}>
+                  <a href={`mailto:${e}`} className="break-all text-white/75 transition-colors hover:text-accent">
+                    {e}
+                  </a>
+                </li>
+              ))}
+              {phones.map((p) => (
+                <li key={p}>
+                  <a href={`tel:${telPhone(p)}`} className="text-white/75 transition-colors hover:text-accent">
+                    {displayPhone(p)}
+                  </a>
+                </li>
+              ))}
+              {contact.address && (
+                <li className="max-w-60 leading-relaxed text-white/50">{contact.address}</li>
+              )}
+            </ul>
+          </Reveal>
+
+          <Reveal delay={0.15} className="lg:col-span-3">
+            <ColumnTitle>Payment options</ColumnTitle>
+            <ul className="mt-4 space-y-2.5">
+              {paymentOptions.map((o) => (
+                <li key={o} className="flex gap-2 text-sm text-white/75">
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
+                  {o}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
 
-        {/* Divider Line */}
-        <div className="w-full h-px bg-white/20 mb-8" />
+        {/* Subsidiary */}
+        {/* <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6 border-t border-white/10 py-6 text-sm">
+          <ColumnTitle>Subsidiary company</ColumnTitle>
+          <p className="text-white/75">Andreams Global Sanitation Services Ltd (AGSS)</p>
+          <div className="flex flex-wrap gap-2 md:ml-auto">
+            <span className="border border-white/10 px-2.5 py-1 text-xs text-white/50">
+              Crystal Fresh — Liquid Soap &amp; Disinfectants
+            </span>
+            <span className="border border-white/10 px-2.5 py-1 text-xs text-white/50">
+              Stainless — Whitener &amp; Disinfectants
+            </span>
+          </div>
+        </div> */}
 
-        {/* Bottom Navigation Links */}
-        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 sm:gap-x-8 md:gap-x-12 text-white/90 text-sm font-medium tracking-wide">
-          <Link href="/" className="hover:text-accent transition-colors">
-            HOME
-          </Link>
-          <Link href="/about" className="hover:text-accent transition-colors">
-            ABOUT
-          </Link>
-          <Link
-            href="/properties"
-            className="hover:text-accent transition-colors"
-          >
-            PROPERTIES
-          </Link>
-          <Link href="/blog" className="hover:text-accent transition-colors">
-            BLOG
-          </Link>
-          <Link href="/gallery" className="hover:text-accent transition-colors">
-            GALLERY
-          </Link>
-          <Link href="/contact" className="hover:text-accent transition-colors">
-            CONTACT
-          </Link>
-          <Link href="/admin" className="hover:text-accent transition-colors">
-            ADMIN
+        {/* Bottom bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-white/50">
+          <p>
+            © {new Date().getFullYear()} Andreams Global Properties Ltd · RC: 11464337
+          </p>
+          <Link href="/admin" className="transition-colors hover:text-white">
+            Login
           </Link>
         </div>
       </div>

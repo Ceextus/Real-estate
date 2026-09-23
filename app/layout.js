@@ -1,15 +1,19 @@
-import localFont from "next/font/local";
+import { Inter, Italiana } from "next/font/google";
 import "./globals.css";
 import { GoogleAnalytics, getSearchConsoleVerification } from "@/lib/analytics";
 
-const clashDisplay = localFont({
-  src: [
-    {
-      path: "../public/fonts/ClashDisplay-Variable.woff2",
-      style: "normal",
-    },
-  ],
-  variable: "--font-clash",
+// Body / UI text
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+// Display headlines (free stand-in for Milky — swap here to change the headline face)
+const italiana = Italiana({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-italiana",
   display: "swap",
 });
 
@@ -111,7 +115,7 @@ export default function RootLayout({ children }) {
           url: `${siteUrl}/logo.png`,
         },
         description:
-          "Abuja-based real estate developer offering affordable homes, serviced plots, and property investments across Abuja FCT and Lagos, Nigeria. RC: 1146437.",
+          "Abuja-based real estate developer offering affordable homes, serviced plots, and property investments across Abuja FCT and Lagos, Nigeria. RC: 11464337.",
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "sales",
@@ -159,7 +163,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${clashDisplay.className} ${clashDisplay.variable} antialiased min-h-screen bg-surface`}
+        className={`${inter.variable} ${italiana.variable} font-sans antialiased min-h-screen bg-canvas`}
       >
         <GoogleAnalytics />
         {children}

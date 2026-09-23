@@ -11,7 +11,8 @@ export default async function sitemap() {
     { url: siteUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1.0 },
     { url: `${siteUrl}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/properties`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteUrl}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+    // Blog hidden for now
+    // { url: `${siteUrl}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${siteUrl}/gallery`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteUrl}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
   ];
@@ -29,7 +30,7 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
-  // ─── Dynamic Blog Pages ──────────────────────────────────────────────────
+  // ─── Dynamic Blog Pages (hidden for now — restore with the Blog nav link) ──────────────────────────────────────────────────
   const { data: posts } = await supabase
     .from("blog_posts")
     .select("slug, updated_at, created_at")
@@ -43,5 +44,5 @@ export default async function sitemap() {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...propertyPages, ...blogPages];
+  return [...staticPages, ...propertyPages /* , ...blogPages */];
 }

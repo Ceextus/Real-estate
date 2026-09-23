@@ -1,26 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { BsArrowRight } from "react-icons/bs";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { BsArrowUpRight, BsCheckLg } from "react-icons/bs";
 import { createClient } from "@/utils/supabase/client";
+import { EASE } from "@/components/motion/Reveal";
+
+const interestLabels = {
+  buy: "Buying a Property",
+  build: "Building from Scratch",
+  invest: "Investment Opportunities",
+  consultation: "General Consultation",
+};
+
+const empty = { name: "", email: "", phone: "", interest: "buy", message: "" };
+
+// Underline-style field: label sits above, the rule turns gold on focus.
+function Field({ label, id, as = "input", ...props }) {
+  const Tag = as;
+  return (
+    <div className="group">
+      <label htmlFor={id} className="block text-[11px] uppercase tracking-[0.16em] text-ink-soft transition-colors group-focus-within:text-accent">
+        {label}
+      </label>
+      <Tag
+        id={id}
+        name={id}
+        {...props}
+        className="mt-2 w-full resize-none border-0 border-b border-line bg-transparent pb-3 pt-1 text-base text-primary placeholder:text-ink-soft/50 outline-none transition-colors duration-300 focus:border-accent"
+      />
+    </div>
+  );
+}
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    interest: "buy",
-    message: ""
-  });
+  const [formData, setFormData] = useState(empty);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
-
-  const interestLabels = {
-    buy: "Buying a Property",
-    build: "Building from Scratch",
-    invest: "Investment Opportunities",
-    consultation: "General Consultation",
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,91 +60,152 @@ export default function ContactForm() {
       setSubmitStatus("error");
     } else {
       setSubmitStatus("success");
-      setFormData({ name: "", email: "", phone: "", interest: "buy", message: "" });
-      setTimeout(() => setSubmitStatus(null), 5000);
+      setFormData(empty);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="bg-white/5 rounded-4xl p-8 md:p-12 border border-white/10 relative overflow-hidden">
-      {/* Decorative top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-accent" />
-      
-      <div className="mb-10 text-center">
-        <h3 className="text-3xl font-bold text-white mb-3 tracking-tight">Send us a Message</h3>
-        <p className="text-white/60 text-sm">Fill out the form below and our team will get back to you within 24 hours.</p>
-      </div>
+    <div className="relative overflow-hidden border border-line bg-white p-6 sm:p-10">
+      <AnimatePresence mode="wait" initial={false}>
+        {submitStatus === "success" ? (
+          <motion.div
+            key="sent"
+            initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -12, filter: "blur(8px)" }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="flex min-h-120 flex-col items-start justify-center"
+            role="status"
+          >
+            <motion.span
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+              className="flex h-14 w-14 items-center justify-center bg-accent text-white"
+            >
+              <BsCheckLg className="text-2xl" />
+            </motion.span>
+            <p className="mt-8 font-display font-bold text-4xl leading-tight text-primary">
+              Thank you! Your message has been sent successfully.
+            </p>
+            <p className="mt-3 text-sm text-ink-soft">
+              Our team will get back to you within 24 hours.
+            </p>
+            <button
+              onClick={() => setSubmitStatus(null)}
+              className="mt-8 border border-primary/20 px-5 py-3 text-sm text-primary transition-colors hover:border-primary/50"
+            >
+              Send another message
+            </button>
+          </motion.div>
+        ) : (
+          <motion.form
+            key="form"
+            onSubmit={handleSubmit}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, filter: "blur(8px)" }}
+            transition={{ duration: 0.4, ease: EASE }}
+          >
+            <p className="text-[11px] uppercase tracking-[0.18em] text-accent">Send us a message</p>
+            <p className="mt-3 text-sm text-ink-soft">
+              Fill out the form below and our team will get back to you within 24 hours.
+            </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="name" className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2 ml-1">Full Name</label>
-            <input type="text" id="name" name="name" required value={formData.name} onChange={handleChange}
-              className="w-full bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
-              placeholder="John Doe" />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2 ml-1">Email Address</label>
-            <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange}
-              className="w-full bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
-              placeholder="john@example.com" />
-          </div>
-        </div>
+            {/* Interest chips */}
+            <fieldset className="mt-8">
+              <legend className="text-[11px] uppercase tracking-[0.16em] text-ink-soft">I am interested in</legend>
+              <LayoutGroup id="interest">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {Object.entries(interestLabels).map(([value, label]) => {
+                    const active = formData.interest === value;
+                    return (
+                      <label
+                        key={value}
+                        className={`relative cursor-pointer border px-4 py-2.5 text-[13px] transition-colors duration-300 has-focus-visible:ring-2 has-focus-visible:ring-accent/60 ${
+                          active ? "border-primary text-white" : "border-line text-primary hover:border-primary/40"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="interest"
+                          value={value}
+                          checked={active}
+                          onChange={handleChange}
+                          className="sr-only"
+                        />
+                        {active && (
+                          <motion.span
+                            layoutId="interest-fill"
+                            transition={{ duration: 0.45, ease: EASE }}
+                            className="absolute inset-0 bg-primary"
+                          />
+                        )}
+                        <span className="relative">{label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </LayoutGroup>
+            </fieldset>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="phone" className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2 ml-1">Phone Number</label>
-            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange}
-              className="w-full bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
-              placeholder="+234 ..." />
-          </div>
-          <div>
-            <label htmlFor="interest" className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2 ml-1">I am interested in</label>
-            <select id="interest" name="interest" value={formData.interest} onChange={handleChange}
-              className="w-full bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all appearance-none cursor-pointer">
-              <option className="bg-primary text-white" value="buy">Buying a Property</option>
-              <option className="bg-primary text-white" value="build">Building from Scratch</option>
-              <option className="bg-primary text-white" value="invest">Investment Opportunities</option>
-              <option className="bg-primary text-white" value="consultation">General Consultation</option>
-            </select>
-          </div>
-        </div>
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+              <Field label="Full name" id="name" type="text" required value={formData.name} onChange={handleChange} placeholder="John Doe" />
+              <Field label="Email address" id="email" type="email" required value={formData.email} onChange={handleChange} placeholder="john@example.com" />
+              <Field label="Phone number" id="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="+234 …" />
+              <div className="md:col-span-2">
+                <Field
+                  label="Your message"
+                  id="message"
+                  as="textarea"
+                  rows={4}
+                  required
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Tell us how we can help you…"
+                />
+              </div>
+            </div>
 
-        <div>
-          <label htmlFor="message" className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2 ml-1">Your Message</label>
-          <textarea id="message" name="message" required rows="4" value={formData.message} onChange={handleChange}
-            className="w-full bg-black/20 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all resize-none"
-            placeholder="Tell us how we can help you..."></textarea>
-        </div>
+            <AnimatePresence>
+              {submitStatus === "error" && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  role="alert"
+                  className="mt-6 border-l-2 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  Something went wrong. Please try again.
+                </motion.p>
+              )}
+            </AnimatePresence>
 
-        {submitStatus === "success" && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm text-center">
-            Thank you! Your message has been sent successfully.
-          </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="group mt-10 inline-flex w-full sm:w-auto items-center justify-center gap-3 bg-primary px-7 py-4 text-sm text-white transition-colors duration-300 hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Sending…
+                </>
+              ) : (
+                <>
+                  Send message
+                  <BsArrowUpRight className="text-xs transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </>
+              )}
+            </button>
+          </motion.form>
         )}
-        {submitStatus === "error" && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm text-center">
-            Something went wrong. Please try again.
-          </div>
-        )}
-
-        <button type="submit" disabled={isSubmitting}
-          className="w-full bg-accent hover:bg-white hover:text-primary text-white px-8 py-4 rounded-xl font-bold tracking-wider transition-all duration-300 shadow-[0_0_20px_rgba(201,168,76,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed border border-transparent">
-          {isSubmitting ? (
-            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          ) : (
-            <>
-              Send Message
-              <BsArrowRight className="text-xl group-hover:translate-x-1 transition-transform" />
-            </>
-          )}
-        </button>
-      </form>
+      </AnimatePresence>
     </div>
   );
 }

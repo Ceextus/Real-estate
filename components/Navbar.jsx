@@ -4,232 +4,211 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiMenu, HiX } from "react-icons/hi";
-import { BsHouseDoor } from "react-icons/bs";
-import { motion, AnimatePresence } from "framer-motion";
+import { HiMenuAlt4, HiX } from "react-icons/hi";
+import { BsArrowUpRight } from "react-icons/bs";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useMotionValueEvent,
+} from "framer-motion";
+import { EASE } from "@/components/motion/Reveal";
 
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
   { name: "Properties", href: "/properties" },
-  { name: "Blog", href: "/blog" },
+  // { name: "Blog", href: "/blog" }, // Blog hidden for now
   { name: "Gallery", href: "/gallery" },
   { name: "Contact Us", href: "/contact" },
-  { name: "Login", href: "/admin" },
-
-  // { name: "Rent", href: "/rent" },
 ];
+
+// Items blur in one after another when the page first loads.
+const intro = {
+  hidden: { opacity: 0, y: -10, filter: "blur(8px)" },
+  shown: (i) => ({
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.7, delay: 0.1 + i * 0.05, ease: EASE },
+  }),
+};
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
+  const { scrollY } = useScroll();
 
-  // Handle scroll effect
+  // Solid background once scrolled; slide away when scrolling down, return when scrolling up.
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    setScrolled(y > 20);
+    setHidden(y > 240 && y > prev && !isOpen);
+  });
+
+  // Lock page scroll while the mobile menu is open.
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isOpen]);
+
+  const isActive = (href) =>
+    href === "/" ? pathname === "/" : pathname?.startsWith(href);
 
   return (
-    <div
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-500 ${scrolled ? "pt-4 px-4" : ""}`}
-    >
-      {/* Background fill to prevent white gap */}
-      <div
-        className={`absolute top-0 left-0 right-0 h-8 bg-primary transition-opacity duration-500 ${scrolled ? "opacity-100" : "opacity-0"} pointer-events-none`}
-      />
-
-      <motion.nav
-        initial={{ y: -100, width: "100%", borderRadius: 0 }}
-        animate={{
-          y: 0,
-          width: scrolled ? "70%" : "100%",
-          borderRadius: scrolled ? 9999 : 0,
-        }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`pointer-events-auto transition-colors duration-500 overflow-hidden w-full ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-xl border border-black/5 shadow-2xl shadow-black/10"
-            : "bg-primary border-transparent shadow-md"
+    <>
+      <motion.header
+        animate={{ y: hidden ? "-100%" : "0%" }}
+        transition={{ duration: 0.5, ease: EASE }}
+        className={`fixed top-0 inset-x-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 border-b ${
+          scrolled || isOpen
+            ? "bg-canvas/85 backdrop-blur-xl border-line"
+            : "bg-canvas border-transparent"
         }`}
       >
-        <div className="px-4 md:px-6 lg:px-8">
-          <div
-            className={`flex justify-between items-center transition-all duration-500 ${scrolled ? "h-16" : "h-20"}`}
-          >
-            {/* Logo */}
-            <Link href="/" className="flex items-center group relative z-50">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className="relative w-32 h-10 sm:w-40 sm:h-12"
-              >
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-8">
+          {/* Logo + links, left aligned like the reference */}
+          <div className="flex items-center gap-10">
+            <motion.div custom={0} variants={intro} initial="hidden" animate="shown">
+              <Link href="/" className="relative block w-14 h-14" onClick={() => setIsOpen(false)}>
                 <Image
                   src="/logo.png"
                   alt="Andreams Homes Logo"
                   fill
-                  className="object-contain"
+                  sizes="56px"
+                  className="object-contain object-left"
                   priority
                 />
-              </motion.div>
-            </Link>
+              </Link>
+            </motion.div>
 
-            {/* Desktop Navigation - Subtle Pill */}
-            <div
-              className={`hidden md:flex rounded-full p-1.5 items-center relative transition-all duration-500 ${scrolled ? "bg-primary/5 border border-primary/10" : "bg-white/10 backdrop-blur-md"}`}
-            >
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="relative z-10 group"
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="nav-pill"
-                        className={`absolute inset-0 rounded-full -z-10 shadow-sm ${scrolled ? "bg-primary" : "bg-white/20"}`}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
-                      />
-                    )}
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1 ${
-                        isActive
-                          ? "text-white"
-                          : scrolled
-                            ? "text-primary/70 group-hover:text-primary"
-                            : "text-white/70 group-hover:text-white"
-                      }`}
-                    >
-                      {link.name}
-                      {["Rent"].includes(link.name) && (
-                        <motion.span
-                          className="text-[10px] opacity-70 mt-[2px] inline-block"
-                          whileHover={{ y: 2 }}
-                        >
-                          ▼
-                        </motion.span>
-                      )}
-                    </motion.div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Desktop Right Actions */}
-            <div className="hidden md:flex items-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link
-                  href="/contact"
-                  className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg border border-transparent ${scrolled ? "bg-primary text-white hover:bg-accent" : "bg-accent text-white hover:bg-white hover:text-accent"}`}
+            <ul className="hidden lg:flex items-center gap-7">
+              {navLinks.map((link, i) => (
+                <motion.li
+                  key={link.name}
+                  custom={i + 1}
+                  variants={intro}
+                  initial="hidden"
+                  animate="shown"
                 >
-                  Get started
-                </Link>
-              </motion.div>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center z-50">
-              <motion.button
-                whileHover={{
-                  scale: 1.1,
-                  backgroundColor: scrolled
-                    ? "rgba(11,29,58,0.1)"
-                    : "rgba(255,255,255,0.15)",
-                }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsOpen(!isOpen)}
-                className={`p-2.5 rounded-full focus:outline-none transition-colors duration-300 shadow-sm ${scrolled ? "text-primary bg-primary/5 border border-primary/10" : "text-white bg-white/5 border border-white/20"}`}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={isOpen ? "close" : "open"}
-                    initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                    exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                    transition={{ duration: 0.2 }}
+                  <Link
+                    href={link.href}
+                    className={`group relative text-[13px] tracking-wide transition-colors duration-300 ${
+                      isActive(link.href)
+                        ? "text-primary"
+                        : "text-ink-soft hover:text-primary"
+                    }`}
                   >
-                    {isOpen ? (
-                      <HiX className="h-5 w-5" />
-                    ) : (
-                      <HiMenu className="h-5 w-5" />
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </motion.button>
-            </div>
+                    {link.name}
+                    {/* Underline grows from the left on hover, stays on the active page */}
+                    <span
+                      className={`absolute -bottom-1.5 left-0 h-px bg-accent transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
+                      }`}
+                    />
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </motion.nav>
 
-      {/* Mobile Menu Overlay */}
+          {/* Right actions */}
+          <motion.div
+            custom={navLinks.length + 1}
+            variants={intro}
+            initial="hidden"
+            animate="shown"
+            className="hidden lg:flex items-center gap-5"
+          >
+            <Link
+              href="/contact"
+              className="group inline-flex items-center gap-2 border border-primary/15 px-4 py-2 text-[13px] text-primary transition-all duration-300 hover:bg-primary hover:text-white hover:border-primary"
+            >
+              Get started
+              <BsArrowUpRight className="text-[11px] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          </motion.div>
+
+          {/* Mobile menu button */}
+          <motion.button
+            custom={1}
+            variants={intro}
+            initial="hidden"
+            animate="shown"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+            className="lg:hidden p-2 -mr-2 text-primary"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={isOpen ? "close" : "open"}
+                initial={{ opacity: 0, rotate: -45 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 45 }}
+                transition={{ duration: 0.2 }}
+                className="block"
+              >
+                {isOpen ? <HiX className="h-6 w-6" /> : <HiMenuAlt4 className="h-6 w-6" />}
+              </motion.span>
+            </AnimatePresence>
+          </motion.button>
+        </nav>
+      </motion.header>
+
+      {/* Mobile menu: full-height sheet with large display-type links */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden fixed top-24 left-4 right-4 bg-primary/95 backdrop-blur-2xl border border-primary-light/30 rounded-3xl p-6 shadow-2xl pointer-events-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="lg:hidden fixed inset-0 top-20 z-60 bg-canvas/95 backdrop-blur-xl px-4 sm:px-6 pt-8 pb-10 flex flex-col"
           >
-            <div className="flex flex-col space-y-2">
-              {navLinks.map((link, i) => {
-                const isActive = pathname === link.href;
-                return (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <Link
-                      href={link.href}
-                      className={`block px-4 py-3 rounded-xl text-xl font-medium transition-all duration-300 
-                        ${
-                          isActive
-                            ? "bg-white/10 text-accent border border-white/10"
-                            : "text-white/80 hover:bg-white/5 hover:text-white"
-                        }`}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                );
-              })}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="pt-6 mt-2 border-t border-white/10"
-              >
-                <Link
-                  href="/contact"
-                  className="block w-full py-4 bg-accent text-white hover:bg-white hover:text-accent border border-transparent hover:border-accent rounded-2xl text-lg font-bold text-center shadow-lg transition-all duration-300"
-                  onClick={() => setIsOpen(false)}
+            <ul className="flex flex-col">
+              {navLinks.map((link, i) => (
+                <motion.li
+                  key={link.name}
+                  initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ duration: 0.6, delay: 0.05 + i * 0.05, ease: EASE }}
+                  className="border-b border-line"
                 >
-                  Get started
-                </Link>
-              </motion.div>
-            </div>
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center justify-between py-4 font-display text-4xl ${
+                      isActive(link.href) ? "text-accent" : "text-primary"
+                    }`}
+                  >
+                    {link.name}
+                    <BsArrowUpRight className="text-base text-ink-soft" />
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.45, ease: EASE }}
+              className="mt-auto"
+            >
+              <Link
+                href="/contact"
+                onClick={() => setIsOpen(false)}
+                className="block w-full bg-primary py-4 text-center text-sm font-medium text-white"
+              >
+                Get started
+              </Link>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
